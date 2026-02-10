@@ -1,0 +1,69 @@
+---
+- name: Install Docker dependencies
+  apt:
+    name:
+      - ca-certificates
+      - gnupg
+    state: present
+
+- name: Add Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker repository
+  apt_repository:
+    repo: "deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+
+- name: Install Docker
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: present
+    update_cache: true
+
+- name: Ensure Docker service is running
+  systemd:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Add user to docker group
+  user:
+    name: "{{ docker_user }}"
+    groups: docker
+    append: true
+
+- name: Remove systemd override for data-root (managed via daemon.json now)
+  file:
+    path: /etc/systemd/system/docker.service.d/override.conf
+    state: absent
+  notify: Restart Docker
+
+- name: Configure Docker daemon
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    mode: "0644"
+  notify: Restart Docker
+
+- name: Create Docker networks
+  command: docker network create {{ item }}
+  loop: "{{ docker_networks }}"
+  register: network_result
+  changed_when: network_result.rc == 0
+  failed_when: network_result.rc != 0 and 'already exists' not in network_result.stderr
+
+
+- name: Set up weekly Docker prune cron
+  cron:
+    name: "Docker system prune"
+    weekday: "0"
+    hour: "3"
+    minute: "0"
+    job: "docker system prune -af --volumes --filter 'until=168h' > /dev/null 2>&1"
+    user: root

@@ -1,0 +1,52 @@
+domain: "69.net.ar"
+internal_domain: "service"
+timezone: "America/Argentina/Buenos_Aires"
+
+nas_ip: "10.0.0.2"
+
+paths:
+  raid: "/mnt/raid"
+  media: "/mnt/raid/media"
+  downloads: "/mnt/raid/downloads"
+  uploads: "/mnt/raid/uploads"
+  config: "/mnt/raid/config"
+  data: "/media/data"
+
+docker_networks:
+  - media
+  - internal
+
+docker_user: skynet
+
+common_packages:
+  - curl
+  - wget
+  - git
+  - htop
+  - jq
+  - rsync
+  - vim
+  - net-tools
+  - dnsutils
+  - iotop
+  - ncdu
+  - tmux
+
+service_ports:
+  jellyfin: 8096
+  navidrome: 4533
+  immich: 2283
+  radarr: 7878
+  sonarr: 8989
+  prowlarr: 9696
+  qbittorrent: 8080
+  jellyseerr: 5055
+  pihole_dns: 53
+  pihole_web: 6969
+  portainer: 9000
+  scrutiny: 8081
+  jfa_go: 8056
+  calibre_web: 8083
+  lidarr: 8686
+  bazarr: 6767
+  slskd: 5030
