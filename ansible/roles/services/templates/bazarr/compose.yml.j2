@@ -1,0 +1,26 @@
+services:
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    networks:
+      - media
+    environment:
+      - PUID={{ puid }}
+      - PGID={{ pgid }}
+      - TZ={{ timezone }}
+    volumes:
+      - {{ paths.config }}/bazarr/config:/config
+      - {{ paths.data }}/movies:/movies
+      - {{ paths.data }}/series:/series
+      - {{ paths.config }}/bazarr/alass:/alass
+    ports:
+      - {{ service_ports.bazarr }}:6767
+    labels:
+      caddy: bazarr.{{ internal_domain }}
+      caddy.reverse_proxy: "{% raw %}{{upstreams 6767}}{% endraw %}"
+      caddy.tls: internal
+    restart: unless-stopped
+
+networks:
+  media:
+    external: true

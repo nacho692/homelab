@@ -1,0 +1,8 @@
+services:
+  cron:
+    image: docker.io/library/alpine:latest
+    container_name: cron
+    restart: unless-stopped
+    volumes:
+      - {{ paths.config }}/cron/afraid-dns:/etc/crontabs/root:ro
+    command: crond -f -l 2

@@ -5,3 +5,11 @@
   roles:
     - common
     - docker
+
+- name: Deploy services
+  hosts: nas
+  become: true
+  roles:
+    - services
+  tags:
+    - services

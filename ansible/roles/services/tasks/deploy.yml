@@ -1,0 +1,114 @@
+---
+- name: "{{ service_name }} - Ensure config directory exists"
+  ansible.builtin.file:
+    path: "{{ services_base_path }}/{{ service_name }}"
+    state: directory
+    owner: "{{ docker_user }}"
+    group: "{{ docker_user }}"
+    mode: "0755"
+  tags:
+    - services
+
+- name: "{{ service_name }} - Template compose.yml"
+  ansible.builtin.template:
+    src: "{{ service_name }}/compose.yml.j2"
+    dest: "{{ services_base_path }}/{{ service_name }}/compose.yml"
+    owner: "{{ docker_user }}"
+    group: "{{ docker_user }}"
+    mode: "0644"
+  register: compose_result
+  tags:
+    - services
+
+- name: "{{ service_name }} - Check if .env template exists"
+  ansible.builtin.stat:
+    path: "{{ role_path }}/templates/{{ service_name }}/.env.j2"
+  register: env_template
+  delegate_to: localhost
+  become: false
+  tags:
+    - services
+
+- name: "{{ service_name }} - Template .env file"
+  ansible.builtin.template:
+    src: "{{ service_name }}/.env.j2"
+    dest: "{{ services_base_path }}/{{ service_name }}/.env"
+    owner: "{{ docker_user }}"
+    group: "{{ docker_user }}"
+    mode: "0600"
+  register: env_result
+  when: env_template.stat.exists
+  tags:
+    - services
+
+- name: "{{ service_name }} - Check for extra templates"
+  ansible.builtin.find:
+    paths: "{{ role_path }}/templates/{{ service_name }}"
+    patterns: "*.j2"
+    excludes:
+      - "compose.yml.j2"
+      - ".env.j2"
+    recurse: true
+  register: extra_templates
+  delegate_to: localhost
+  become: false
+  tags:
+    - services
+
+- name: "{{ service_name }} - Check for static files"
+  ansible.builtin.find:
+    paths: "{{ role_path }}/templates/{{ service_name }}"
+    excludes:
+      - "*.j2"
+    file_type: file
+    recurse: true
+  register: static_files
+  delegate_to: localhost
+  become: false
+  tags:
+    - services
+
+- name: "{{ service_name }} - Ensure extra file subdirectories exist"
+  ansible.builtin.file:
+    path: "{{ services_base_path }}/{{ service_name }}/{{ item.path | relpath(role_path + '/templates/' + service_name) | dirname }}"
+    state: directory
+    owner: "{{ docker_user }}"
+    group: "{{ docker_user }}"
+    mode: "0755"
+  loop: "{{ extra_templates.files + static_files.files }}"
+  when: (item.path | relpath(role_path + '/templates/' + service_name) | dirname) != '.'
+  tags:
+    - services
+
+- name: "{{ service_name }} - Template extra files"
+  ansible.builtin.template:
+    src: "{{ item.path }}"
+    dest: "{{ services_base_path }}/{{ service_name }}/{{ item.path | relpath(role_path + '/templates/' + service_name) | regex_replace('\\.j2$', '') }}"
+    owner: "{{ docker_user }}"
+    group: "{{ docker_user }}"
+    mode: "0644"
+  loop: "{{ extra_templates.files }}"
+  register: extra_result
+  tags:
+    - services
+
+- name: "{{ service_name }} - Copy static files"
+  ansible.builtin.copy:
+    src: "{{ item.path }}"
+    dest: "{{ services_base_path }}/{{ service_name }}/{{ item.path | relpath(role_path + '/templates/' + service_name) }}"
+    owner: "{{ docker_user }}"
+    group: "{{ docker_user }}"
+    mode: "0644"
+  loop: "{{ static_files.files }}"
+  register: static_result
+  tags:
+    - services
+
+- name: "{{ service_name }} - Docker compose up"
+  community.docker.docker_compose_v2:
+    project_src: "{{ services_base_path }}/{{ service_name }}"
+    state: present
+    pull: missing
+  register: compose_up
+  tags:
+    - services

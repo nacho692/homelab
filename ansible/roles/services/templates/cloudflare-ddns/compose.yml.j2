@@ -1,0 +1,10 @@
+services:
+  cloudflare-ddns-rooms:
+    image: oznu/cloudflare-ddns:latest
+    container_name: cloudflare-ddns-rooms
+    restart: unless-stopped
+    environment:
+      - API_KEY=${CLOUDFLARE_API_KEY}
+      - ZONE={{ domain }}
+      - PROXIED=false
+      - TZ={{ timezone }}

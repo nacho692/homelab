@@ -50,3 +50,10 @@ service_ports:
   lidarr: 8686
   bazarr: 6767
   slskd: 5030
+  frigate: 8971
+
+# Immich
+immich_version: "v2"
+
+# Ansible become password from vault
+ansible_become_pass: "{{ vault_ansible_become_pass }}"

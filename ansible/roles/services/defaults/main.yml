@@ -1,0 +1,5 @@
+---
+puid: "1000"
+pgid: "1000"
+
+services_base_path: "{{ paths.config }}"

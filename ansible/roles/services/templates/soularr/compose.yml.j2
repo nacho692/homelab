@@ -1,0 +1,21 @@
+services:
+  soularr:
+    image: mrusse08/soularr:latest
+    container_name: soularr
+    hostname: soularr
+    networks:
+      - media
+    environment:
+      - PUID={{ puid }}
+      - PGID={{ pgid }}
+      - SCRIPT_INTERVAL=100
+      - TZ={{ timezone }}
+    user: "{{ puid }}:{{ pgid }}"
+    volumes:
+      - {{ paths.downloads }}/slskd/downloads:/downloads
+      - {{ paths.config }}/soularr/config:/data
+    restart: unless-stopped
+
+networks:
+  media:
+    external: true

@@ -1,0 +1,57 @@
+services:
+  calibre-downloader:
+    image: ghcr.io/calibrain/calibre-web-automated-book-downloader:latest
+    container_name: calibre-downloader
+    networks:
+      - media
+    environment:
+      UID: {{ puid }}
+      GID: {{ pgid }}
+      FLASK_PORT: 8084
+      FLASK_DEBUG: false
+      CLOUDFLARE_PROXY_URL: http://cloudflarebypassforscraping:8000
+      INGEST_DIR: /cwa-book-ingest
+      BOOK_LANGUAGE: en,es
+      SUPPORTED_FORMATS: epub,mobi,azw3,fb2,djvu,cbz,cbr
+    ports:
+      - 8084:8084
+    restart: unless-stopped
+    volumes:
+      - {{ paths.downloads }}/calibre-web-automated:/cwa-book-ingest
+    labels:
+      caddy: calibre-downloader.{{ internal_domain }}
+      caddy.reverse_proxy: "{% raw %}{{upstreams 8084}}{% endraw %}"
+      caddy.tls: internal
+
+  calibre:
+    image: crocodilestick/calibre-web-automated:latest
+    container_name: calibre
+    environment:
+      - PUID={{ puid }}
+      - PGID={{ pgid }}
+      - TZ={{ timezone }}
+    volumes:
+      - {{ paths.config }}/calibre-web-automated/config:/config
+      - {{ paths.downloads }}/qbittorrent/libros:/qbittorrent-book-ingest
+      - {{ paths.downloads }}/calibre-web-automated:/cwa-book-ingest
+      - {{ paths.media }}/libros:/calibre-library
+    ports:
+      - {{ service_ports.calibre_web }}:8083
+    restart: unless-stopped
+    networks:
+      - media
+    labels:
+      caddy: calibre.{{ internal_domain }}
+      caddy.reverse_proxy: "{% raw %}{{upstreams 8083}}{% endraw %}"
+      caddy.tls: internal
+
+  cloudflarebypassforscraping:
+    container_name: cloudflarebypassforscraping
+    image: ghcr.io/sarperavci/cloudflarebypassforscraping:latest
+    restart: unless-stopped
+    networks:
+      - media
+
+networks:
+  media:
+    external: true

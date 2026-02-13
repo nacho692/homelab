@@ -1,0 +1,24 @@
+services:
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    networks:
+      - media
+    environment:
+      - PUID={{ puid }}
+      - PGID={{ pgid }}
+      - TZ={{ timezone }}
+    volumes:
+      - {{ paths.config }}/sonarr/data:/config
+      - {{ paths.data }}:/data
+    ports:
+      - {{ service_ports.sonarr }}:8989
+    restart: unless-stopped
+    labels:
+      caddy: sonarr.{{ internal_domain }}
+      caddy.reverse_proxy: "{% raw %}{{upstreams 8989}}{% endraw %}"
+      caddy.tls: internal
+
+networks:
+  media:
+    external: true

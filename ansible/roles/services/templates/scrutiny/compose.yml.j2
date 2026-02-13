@@ -1,0 +1,28 @@
+services:
+  scrutiny:
+    image: ghcr.io/analogj/scrutiny:master-omnibus
+    container_name: scrutiny
+    networks:
+      - internal
+    ports:
+      - {{ service_ports.scrutiny }}:8080
+      - 8086:8086
+    volumes:
+      - /run/udev:/run/udev:ro
+      - {{ paths.config }}/scrutiny/config:/opt/scrutiny/config
+      - {{ paths.config }}/scrutiny/influxdb:/opt/scrutiny/influxdb
+    devices:
+{% for device in scrutiny_devices %}
+      - {{ device }}
+{% endfor %}
+    cap_add:
+      - SYS_RAWIO
+    restart: unless-stopped
+    labels:
+      caddy: scrutiny.internal
+      caddy.reverse_proxy: "{% raw %}{{upstreams 8080}}{% endraw %}"
+      caddy.tls: internal
+
+networks:
+  internal:
+    external: true

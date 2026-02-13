@@ -1,0 +1,26 @@
+services:
+  wireguard-backbone:
+    image: ghcr.io/jcbasso/wireguard-manager:latest
+    container_name: wireguard-backbone
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    volumes:
+      - ./config:/etc/wireguard
+      - ./secrets:/run/secrets:ro
+    ports:
+      - "${WIREGUARD_PORT}:${WIREGUARD_PORT}/udp"
+    environment:
+      - PEER_NAME
+      - BACKBONE_IP
+      - GIT_REPO_URL
+      - GIT_SSH_KEY_PATH
+      - WIREGUARD_PORT
+      - SERVER_IDENTIFIER
+      - DOCKER_CONTAINER
+    restart: unless-stopped
+
+networks:
+  wireguard_net:
+    external: true

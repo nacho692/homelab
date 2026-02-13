@@ -1,0 +1,56 @@
+tls:
+  enabled: false
+
+mqtt:
+  enabled: false
+
+detect:
+  enabled: true
+  width: 1920
+  height: 1080
+
+record:
+  enabled: true
+  retain:
+    days: 3
+    mode: motion
+  alerts:
+    retain:
+      days: 14
+  detections:
+    retain:
+      days: 10
+
+snapshots:
+  enabled: true
+  retain:
+    default: 7
+
+objects:
+  track:
+    - person
+    - cat
+    - dog
+
+face_recognition:
+  enabled: true
+  min_area: 250
+  detection_threshold: 0.5
+
+cameras:
+  col-1:
+    enabled: true
+    ffmpeg:
+      hwaccel_args: preset-vaapi
+      inputs:
+        - path: rtsp://{{ vault_frigate_rtsp_user }}:{{ vault_frigate_rtsp_password }}@10.0.0.10:554/stream1
+          roles:
+            - detect
+            - record
+            - audio
+    motion:
+      mask: 0.36,0.057,0,0.057,0,0.003,0.361,0
+      threshold: 30
+      contour_area: 20
+      improve_contrast: true
+version: 0.16-0

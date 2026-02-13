@@ -1,0 +1,28 @@
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    user: {{ puid }}:{{ pgid }}
+    ports:
+      - "{{ service_ports.navidrome }}:4533"
+    environment:
+      ND_CONFIGFILE: /data/navidrome.toml
+      ND_BASEURL: /
+      ND_MUSICFOLDER: /music
+      ND_FFMPEGPATH: /usr/bin/ffmpeg
+    volumes:
+      - "{{ paths.config }}/navidrome/data:/data"
+      - "{{ paths.media }}/musica:/music:ro"
+    labels:
+      caddy_0: http://ratafy.{{ internal_domain }}, https://ratafy.{{ internal_domain }}
+      caddy_0.reverse_proxy: "{% raw %}{{upstreams 4533}}{% endraw %}"
+      caddy_0.tls: internal
+      caddy_1: ratafy.{{ domain }}
+      caddy_1.reverse_proxy: "{% raw %}{{upstreams 4533}}{% endraw %}"
+    restart: unless-stopped
+    networks:
+      - media
+
+networks:
+  media:
+    external: true

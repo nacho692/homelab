@@ -1,0 +1,20 @@
+services:
+  borgmatic:
+    image: b3vis/borgmatic
+    container_name: borgmatic
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - TZ={{ timezone }}
+      - BACKUP_CRON=0 3 * * *
+    volumes:
+      - {{ paths.config }}:/source:ro
+      - {{ paths.data }}/backups/borg:/repository
+      - {{ paths.config }}/borgmatic/config:/etc/borgmatic.d
+      - borgmatic-state:/root/.borgmatic
+      - borgmatic-cache:/root/.cache/borg
+
+volumes:
+  borgmatic-state:
+  borgmatic-cache:

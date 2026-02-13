@@ -1,0 +1,29 @@
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    networks:
+      - media
+    environment:
+      - PUID={{ puid }}
+      - PGID={{ pgid }}
+      - TZ={{ timezone }}
+      - WEBUI_PORT=8080
+      - TORRENTING_PORT=40000
+    volumes:
+      - {{ paths.config }}/qbittorrent/appdata:/config
+      - {{ paths.downloads }}/qbittorrent:/downloads
+      - {{ paths.uploads }}/torrent:/uploads
+      - {{ paths.data }}/downloads/qbittorrent:/media-downloads
+    ports:
+      - 40000:40000
+      - 40000:40000/udp
+    restart: unless-stopped
+    labels:
+      caddy: qbittorrent.{{ internal_domain }}
+      caddy.reverse_proxy: "{% raw %}{{upstreams 8080}}{% endraw %}"
+      caddy.tls: internal
+
+networks:
+  media:
+    external: true

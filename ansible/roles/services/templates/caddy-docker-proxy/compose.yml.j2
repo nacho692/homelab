@@ -1,0 +1,32 @@
+services:
+  caddy:
+    image: lucaslorentz/caddy-docker-proxy:ci-alpine
+    container_name: caddy-docker-proxy
+    restart: unless-stopped
+    networks:
+      - media
+      - internal
+    environment:
+      - TZ={{ timezone }}
+      - CADDY_INGRESS_NETWORKS=media,internal
+      - CADDY_DOCKER_CADDYFILE_PATH=/etc/caddy/Caddyfile.base
+    ports:
+      - "80:80"
+      - "443:443"
+    expose:
+      - 80
+      - 443
+    volumes:
+      - caddy-data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - {{ paths.config }}/caddy-docker-proxy/Caddyfile:/etc/caddy/Caddyfile.base
+      - {{ paths.config }}/caddy-docker-proxy/certs/:/data/caddy/pki/authorities/local/
+
+networks:
+  media:
+    external: true
+  internal:
+    external: true
+
+volumes:
+  caddy-data:

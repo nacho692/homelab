@@ -1,1 +1,64 @@
 docker_data_root: "/mnt/raid/docker"
+
+enabled_services:
+  # Networking
+  - pihole
+  - caddy-docker-proxy
+  - cloudflare-ddns
+  - cron
+  - tailscale
+  - wireguard-backbone
+  # Media streaming
+  - jellyfin
+  - navidrome
+  # Media management
+  - radarr
+  - sonarr
+  - lidarr
+  - bazarr
+  - prowlarr
+  - jellyseerr
+  - swaparr
+  # Downloading
+  - qbittorrent
+  - slskd
+  - soularr
+  - unpackerr
+  - flaresolverr
+  - calibre-web-automated
+  - ytdl-sub
+  # Photos
+  - immich
+  # Admin
+  - portainer-server
+  - scrutiny
+  - jfa-go
+  # Backup
+  - borgmatic
+  # Surveillance
+  - frigate
+  # Other
+  - scripts
+
+# GPU
+render_group: "110"
+gpu_device: "/dev/dri/renderD128"
+
+# Scrutiny disk devices
+scrutiny_devices:
+  - /dev/sda
+  - /dev/sdb
+  - /dev/sdc
+  - /dev/sdd
+  - /dev/sde
+
+# Tailscale
+tailscale_hostname: "media-pacheco"
+
+# Wireguard
+wireguard:
+  peer_name: "nacho"
+  backbone_ip: "10.100.0.69"
+  port: 51820
+  server_identifier: "server-nacho"
+  git_repo_url: "git@github.com:jcbasso/backbone-config.git"

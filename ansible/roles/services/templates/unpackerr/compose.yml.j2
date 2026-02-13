@@ -1,0 +1,22 @@
+services:
+  unpackerr:
+    image: golift/unpackerr
+    container_name: unpackerr
+    networks:
+      - media
+    volumes:
+      - {{ paths.config }}/unpackerr/logs:/logs
+      - {{ paths.data }}/:/data/
+    restart: unless-stopped
+    user: {{ puid }}:{{ pgid }}
+    environment:
+      - TZ={{ timezone }}
+      - UN_LOG_FILE=/logs/unpackerr.log
+      - UN_SONARR_0_URL=http://sonarr:8989
+      - UN_SONARR_0_API_KEY=${UN_SONARR_API_KEY}
+      - UN_RADARR_0_URL=http://radarr:7878
+      - UN_RADARR_0_API_KEY=${UN_RADARR_API_KEY}
+
+networks:
+  media:
+    external: true

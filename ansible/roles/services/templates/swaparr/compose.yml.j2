@@ -1,0 +1,38 @@
+services:
+  radarr:
+    image: ghcr.io/thijmengthn/swaparr:latest
+    container_name: swaparr-radarr
+    restart: unless-stopped
+    environment:
+      - BASEURL=https://radarr.{{ internal_domain }}:7878
+      - APIKEY={{ vault_radarr_api_key }}
+      - PLATFORM=radarr
+      - MAX_STRIKES=3
+      - SCAN_INTERVAL=10m
+      - MAX_DOWNLOAD_TIME=2h
+      - IGNORE_ABOVE_SIZE=25GB
+      - REMOVE_FROM_CLIENT=true
+      - DRY_RUN=true
+    networks:
+      - media
+
+  sonarr:
+    image: ghcr.io/thijmengthn/swaparr:latest
+    container_name: swaparr-sonarr
+    restart: unless-stopped
+    environment:
+      - BASEURL=https://radarr.{{ internal_domain }}:8989
+      - APIKEY={{ vault_sonarr_api_key }}
+      - PLATFORM=sonarr
+      - MAX_STRIKES=3
+      - SCAN_INTERVAL=10m
+      - MAX_DOWNLOAD_TIME=2h
+      - IGNORE_ABOVE_SIZE=25GB
+      - REMOVE_FROM_CLIENT=true
+      - DRY_RUN=true
+    networks:
+      - media
+
+networks:
+  media:
+    external: true

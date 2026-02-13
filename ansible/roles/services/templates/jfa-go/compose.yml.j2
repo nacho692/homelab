@@ -1,0 +1,23 @@
+services:
+  jfa-go:
+    image: docker.io/hrfee/jfa-go
+    container_name: jfa-go
+    networks:
+      - media
+    ports:
+      - {{ service_ports.jfa_go }}:8056
+    volumes:
+      - {{ paths.config }}/jfa-go/config:/data
+      - /etc/localtime:/etc/localtime:ro
+      - {{ paths.config }}/jellyfin/config:/jf
+    restart: unless-stopped
+    labels:
+      caddy: registry.rataflix.{{ domain }}
+      caddy.reverse_proxy: "{% raw %}{{upstreams 8056}}{% endraw %}"
+      caddy_1: http://registry.rataflix.{{ internal_domain }}, https://registry.rataflix.{{ internal_domain }}
+      caddy_1.reverse_proxy: "{% raw %}{{upstreams 8056}}{% endraw %}"
+      caddy_1.tls: internal
+
+networks:
+  media:
+    external: true

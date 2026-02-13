@@ -1,0 +1,18 @@
+services:
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    networks:
+      - media
+    environment:
+      - PUID={{ puid }}
+      - PGID={{ pgid }}
+      - TZ={{ timezone }}
+      - LOG_LEVEL=info
+    volumes:
+      - {{ paths.config }}/prowlarr/data:/config
+    restart: unless-stopped
+
+networks:
+  media:
+    external: true

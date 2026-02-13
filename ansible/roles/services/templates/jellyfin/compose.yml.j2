@@ -1,0 +1,41 @@
+services:
+  jellyfin:
+    image: docker.io/jellyfin/jellyfin
+    networks:
+      - media
+    container_name: jellyfin
+    ports:
+      - {{ service_ports.jellyfin }}:8096
+    group_add:
+      - "{{ render_group }}"
+    volumes:
+      - jellyfin-cache:/cache
+      - type: bind
+        source: {{ paths.media }}
+        target: /media
+      - type: bind
+        source: {{ paths.data }}
+        target: /media-data
+      - type: bind
+        source: {{ paths.config }}/jellyfin/config
+        target: /config
+    devices:
+      - {{ gpu_device }}:/dev/dri/renderD128
+    restart: 'unless-stopped'
+    environment:
+      - PUID={{ puid }}
+      - PGID={{ pgid }}
+      - JELLYFIN_PublishedServerUrl=http://rataflix.{{ internal_domain }}
+    labels:
+      caddy_0: http://rataflix.{{ internal_domain }}, https://rataflix.{{ internal_domain }}
+      caddy_0.reverse_proxy: "{% raw %}{{upstreams 8096}}{% endraw %}"
+      caddy_0.tls: internal
+      caddy_1: rataflix.{{ domain }}
+      caddy_1.reverse_proxy: "{% raw %}{{upstreams 8096}}{% endraw %}"
+
+volumes:
+  jellyfin-cache:
+
+networks:
+  media:
+    external: true

@@ -1,0 +1,23 @@
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    ports:
+      - {{ service_ports.prowlarr }}:9696
+    networks:
+      - media
+    environment:
+      - PUID={{ puid }}
+      - PGID={{ pgid }}
+      - TZ={{ timezone }}
+    volumes:
+      - {{ paths.config }}/prowlarr/data:/config
+    restart: unless-stopped
+    labels:
+      caddy: prowlarr.{{ internal_domain }}
+      caddy.reverse_proxy: "{% raw %}{{upstreams 9696}}{% endraw %}"
+      caddy.tls: internal
+
+networks:
+  media:
+    external: true

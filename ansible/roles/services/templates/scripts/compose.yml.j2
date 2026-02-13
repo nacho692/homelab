@@ -1,0 +1,17 @@
+services:
+  qbittorrent-hardlink:
+    build: {{ paths.config }}/scripts/qbittorrent-hardlink
+    container_name: qbittorrent-hardlink
+    networks:
+      - media
+    environment:
+      - PUID={{ puid }}
+      - PGID={{ pgid }}
+      - TZ={{ timezone }}
+    volumes:
+      - {{ paths.data }}:/data
+    restart: "no"
+
+networks:
+  media:
+    external: true
