@@ -45,12 +45,6 @@
     groups: docker
     append: true
 
-- name: Remove systemd override for data-root (managed via daemon.json now)
-  file:
-    path: /etc/systemd/system/docker.service.d/override.conf
-    state: absent
-  notify: Restart Docker
-
 - name: Configure Docker daemon
   template:
     src: daemon.json.j2

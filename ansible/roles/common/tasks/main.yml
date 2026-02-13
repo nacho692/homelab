@@ -9,6 +9,49 @@
     name: "{{ common_packages }}"
     state: present
 
+- name: Add Eternal Terminal PPA
+  apt_repository:
+    repo: ppa:jgmath2000/et
+    state: present
+
+- name: Install Eternal Terminal
+  apt:
+    name: et
+    state: present
+    update_cache: true
+
+- name: Enable and start etserver
+  systemd:
+    name: et
+    enabled: true
+    state: started
+
+- name: Check if zellij is installed
+  command: zellij --version
+  register: zellij_check
+  changed_when: false
+  failed_when: false
+
+- name: Install zellij
+  when: zellij_check.rc != 0
+  block:
+    - name: Download zellij binary
+      get_url:
+        url: "https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz"
+        dest: /tmp/zellij.tar.gz
+
+    - name: Extract zellij to /usr/local/bin
+      unarchive:
+        src: /tmp/zellij.tar.gz
+        dest: /usr/local/bin
+        remote_src: true
+        mode: "0755"
+
+    - name: Clean up zellij tarball
+      file:
+        path: /tmp/zellij.tar.gz
+        state: absent
+
 - name: Set timezone
   community.general.timezone:
     name: "{{ timezone }}"
