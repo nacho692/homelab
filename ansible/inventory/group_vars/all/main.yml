@@ -43,10 +43,10 @@ service_ports:
   jellyseerr: 5055
   pihole_dns: 53
   pihole_web: 6969
-  portainer: 9000
+
   scrutiny: 8081
   jfa_go: 8056
-  calibre_web: 8083
+
   lidarr: 8686
   bazarr: 6767
   slskd: 5030
