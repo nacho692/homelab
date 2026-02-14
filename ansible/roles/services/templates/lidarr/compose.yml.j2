@@ -1,6 +1,6 @@
 services:
   lidarr:
-    image: lscr.io/linuxserver/lidarr:latest
+    image: lscr.io/linuxserver/lidarr:nightly
     container_name: lidarr
     networks:
       - media
@@ -8,9 +8,10 @@ services:
       - PUID={{ puid }}
       - PGID={{ pgid }}
       - TZ={{ timezone }}
+      - DOCKER_MODS=linuxserver/mods:lidarr-flac2mp3
     volumes:
       - {{ paths.config }}/lidarr/data:/config
-      - {{ paths.raid }}/:/data
+      - {{ paths.data }}:/data
     ports:
       - {{ service_ports.lidarr }}:8686
     restart: unless-stopped

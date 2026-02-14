@@ -22,7 +22,6 @@ enabled_services:
   # Downloading
   - qbittorrent
   - slskd
-  - soularr
   - unpackerr
   - flaresolverr
 
@@ -36,6 +35,8 @@ enabled_services:
   - borgmatic
   # Surveillance
   - frigate
+  # Music AI
+  - audiomuse-ai
 
 # GPU
 render_group: "110"

@@ -1,0 +1,76 @@
+services:
+  audiomuse-redis:
+    image: redis:7-alpine
+    container_name: audiomuse_redis
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - media
+
+  audiomuse-postgres:
+    image: postgres:15-alpine
+    container_name: audiomuse_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - media
+
+  audiomuse-flask:
+    image: ghcr.io/neptunehub/audiomuse-ai:latest
+    container_name: audiomuse_flask
+    env_file:
+      - .env
+    environment:
+      SERVICE_TYPE: flask
+      POSTGRES_HOST: audiomuse-postgres
+      REDIS_URL: redis://audiomuse-redis:6379/0
+      TEMP_DIR: /app/temp_audio
+    volumes:
+      - temp-audio-flask:/app/temp_audio
+    ports:
+      - "{{ service_ports.audiomuse }}:8000"
+    depends_on:
+      - audiomuse-redis
+      - audiomuse-postgres
+    restart: unless-stopped
+    networks:
+      - media
+    labels:
+      caddy: audiomuse.{{ internal_domain }}
+      caddy.reverse_proxy: "{% raw %}{{upstreams 8000}}{% endraw %}"
+      caddy.tls: internal
+
+  audiomuse-worker:
+    image: ghcr.io/neptunehub/audiomuse-ai:latest
+    container_name: audiomuse_worker
+    env_file:
+      - .env
+    environment:
+      SERVICE_TYPE: worker
+      POSTGRES_HOST: audiomuse-postgres
+      REDIS_URL: redis://audiomuse-redis:6379/0
+      TEMP_DIR: /app/temp_audio
+    volumes:
+      - temp-audio-worker:/app/temp_audio
+    depends_on:
+      - audiomuse-redis
+      - audiomuse-postgres
+    restart: unless-stopped
+    networks:
+      - media
+
+volumes:
+  redis-data:
+  postgres-data:
+  temp-audio-flask:
+  temp-audio-worker:
+
+networks:
+  media:
+    external: true

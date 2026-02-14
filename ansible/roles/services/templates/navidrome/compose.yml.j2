@@ -10,9 +10,13 @@ services:
       ND_BASEURL: /
       ND_MUSICFOLDER: /music
       ND_FFMPEGPATH: /usr/bin/ffmpeg
+      ND_PLUGINS_ENABLED: "true"
+      ND_PLUGINS_AUTORELOAD: "true"
+      ND_AGENTS: audiomuseai,lastfm,spotify,deezer
+      ND_DEVARTISTINFOTIMETOLIVE: 1s
     volumes:
       - "{{ paths.config }}/navidrome/data:/data"
-      - "{{ paths.media }}/musica:/music:ro"
+      - "{{ paths.data }}/music:/music:ro"
     labels:
       caddy_0: http://ratafy.{{ internal_domain }}, https://ratafy.{{ internal_domain }}
       caddy_0.reverse_proxy: "{% raw %}{{upstreams 4533}}{% endraw %}"

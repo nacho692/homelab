@@ -1,5 +1,5 @@
 domain: "69.net.ar"
-internal_domain: "service"
+internal_domain: "internal"
 timezone: "America/Argentina/Buenos_Aires"
 
 nas_ip: "10.0.0.2"
@@ -51,6 +51,7 @@ service_ports:
   bazarr: 6767
   slskd: 5030
   frigate: 8971
+  audiomuse: 8000
 
 # Immich
 immich_version: "v2"

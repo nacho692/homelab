@@ -19,7 +19,7 @@ services:
       - SYS_RAWIO
     restart: unless-stopped
     labels:
-      caddy: scrutiny.internal
+      caddy: scrutiny.{{ internal_domain }}
       caddy.reverse_proxy: "{% raw %}{{upstreams 8080}}{% endraw %}"
       caddy.tls: internal
 

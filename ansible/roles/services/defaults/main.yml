@@ -3,3 +3,7 @@ puid: "1000"
 pgid: "1000"
 
 services_base_path: "{{ paths.config }}"
+docker_pull_policy: "missing"
+
+# AudioMuse-AI
+audiomuse_plugin_version: "v5"

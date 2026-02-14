@@ -27,7 +27,7 @@ services:
           size: 1000000000
     shm_size: "256mb"
     labels:
-      caddy: frigate.internal
+      caddy: frigate.{{ internal_domain }}
       caddy.reverse_proxy: "{% raw %}{{upstreams 8971}}{% endraw %}"
       caddy.tls: internal
 

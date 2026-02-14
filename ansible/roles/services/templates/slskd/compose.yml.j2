@@ -15,9 +15,9 @@ services:
       - TZ={{ timezone }}
     volumes:
       - {{ paths.config }}/slskd/app:/app
-      - {{ paths.downloads }}/slskd/downloads:/app/downloads
-      - {{ paths.downloads }}/slskd/incomplete:/app/incomplete
-      - {{ paths.media }}/musica:/music
+      - {{ paths.data }}/downloads/slskd/downloads:/app/downloads
+      - {{ paths.data }}/downloads/slskd/incomplete:/app/incomplete
+      - {{ paths.data }}/music:/music
     restart: unless-stopped
     labels:
       caddy: slskd.{{ internal_domain }}
