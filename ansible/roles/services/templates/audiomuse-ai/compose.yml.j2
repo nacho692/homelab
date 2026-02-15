@@ -22,7 +22,7 @@ services:
       - media
 
   audiomuse-flask:
-    image: ghcr.io/neptunehub/audiomuse-ai:latest
+    image: ghcr.io/neptunehub/audiomuse-ai:latest-noavx2
     container_name: audiomuse_flask
     env_file:
       - .env
@@ -47,7 +47,7 @@ services:
       caddy.tls: internal
 
   audiomuse-worker:
-    image: ghcr.io/neptunehub/audiomuse-ai:latest
+    image: ghcr.io/neptunehub/audiomuse-ai:latest-noavx2
     container_name: audiomuse_worker
     env_file:
       - .env
