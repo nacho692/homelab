@@ -7,7 +7,6 @@ enabled_services:
   - cloudflare-ddns
 
   - tailscale
-  - wireguard-backbone
   # Media streaming
   - jellyfin
   - navidrome
@@ -18,7 +17,6 @@ enabled_services:
   - bazarr
   - prowlarr
   - jellyseerr
-  - swaparr
   # Downloading
   - qbittorrent
   - slskd
@@ -53,10 +51,3 @@ scrutiny_devices:
 # Tailscale
 tailscale_hostname: "media-pacheco"
 
-# Wireguard
-wireguard:
-  peer_name: "nacho"
-  backbone_ip: "10.100.0.69"
-  port: 51820
-  server_identifier: "server-nacho"
-  git_repo_url: "git@github.com:jcbasso/backbone-config.git"

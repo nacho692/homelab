@@ -4,3 +4,12 @@
     name: docker
     state: restarted
     daemon_reload: true
+  notify: Wait for Docker
+
+- name: Wait for Docker
+  command: docker info
+  register: docker_info
+  retries: 10
+  delay: 3
+  until: docker_info.rc == 0
+  changed_when: false
