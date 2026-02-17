@@ -1,0 +1,31 @@
+services:
+  discoverylastfm:
+    image: mrrobotogit/discoverylastfm:latest
+    container_name: discoverylastfm
+    env_file:
+      - .env
+    environment:
+      - DISCOVERY_MODE=daemon
+      - PYTHONPATH=/app/config
+      - SLEEP_HOURS=24
+      - LIDARR_ENDPOINT=http://lidarr:8686
+      - LIDARR_ROOT_FOLDER=/data/music
+      - LIDARR_MONITOR_MODE=none
+      - LIDARR_SEARCH_ON_ADD=true
+      # Discovery tuning
+      - RECENT_MONTHS=3
+      - MIN_PLAYS=20
+      - MAX_SIMILAR_PER_ART=5
+      - MAX_POP_ALBUMS=2
+      - SIMILAR_MATCH_MIN=0.46
+    volumes:
+      - "{{ paths.config }}/discoverylastfm/config:/app/config"
+      - "{{ paths.config }}/discoverylastfm/logs:/app/logs"
+      - "{{ paths.config }}/discoverylastfm/cache:/app/cache"
+    restart: unless-stopped
+    networks:
+      - media
+
+networks:
+  media:
+    external: true

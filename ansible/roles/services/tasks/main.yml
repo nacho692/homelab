@@ -1,4 +1,16 @@
 ---
+- name: DiscoveryLastFM - directory setup
+  ansible.builtin.include_tasks: discoverylastfm.yml
+  when: "'discoverylastfm' in enabled_services"
+  tags:
+    - services
+
+- name: slskd - directory setup
+  ansible.builtin.include_tasks: slskd.yml
+  when: "'slskd' in enabled_services"
+  tags:
+    - services
+
 - name: Deploy services
   ansible.builtin.include_tasks: deploy.yml
   loop: "{{ enabled_services }}"

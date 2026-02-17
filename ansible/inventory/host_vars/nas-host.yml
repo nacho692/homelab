@@ -35,6 +35,8 @@ enabled_services:
   - frigate
   # Music AI
   - audiomuse-ai
+  # Music Discovery
+  - discoverylastfm
 
 # GPU
 render_group: "110"

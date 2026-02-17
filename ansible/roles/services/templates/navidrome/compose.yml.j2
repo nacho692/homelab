@@ -9,10 +9,13 @@ services:
       ND_CONFIGFILE: /data/navidrome.toml
       ND_BASEURL: /
       ND_MUSICFOLDER: /music
+      ND_PID_ALBUM: "musicbrainz_albumid|albumartistid,album,albumversion"
       ND_FFMPEGPATH: /usr/bin/ffmpeg
       ND_PLUGINS_ENABLED: "true"
       ND_PLUGINS_AUTORELOAD: "true"
       ND_AGENTS: audiomuseai,lastfm,spotify,deezer
+      ND_LASTFM_APIKEY: "{{ vault_lastfm_apikey }}"
+      ND_LASTFM_SECRET: "{{ vault_lastfm_secret }}"
       ND_DEVARTISTINFOTIMETOLIVE: 1s
     volumes:
       - "{{ paths.config }}/navidrome/data:/data"

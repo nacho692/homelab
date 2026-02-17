@@ -1,0 +1,20 @@
+---
+- name: "slskd - Ensure downloads directory exists"
+  ansible.builtin.file:
+    path: "{{ paths.data }}/downloads/slskd/downloads"
+    state: directory
+    owner: "{{ docker_user }}"
+    group: "{{ docker_user }}"
+    mode: "0755"
+  tags:
+    - services
+
+- name: "slskd - Ensure incomplete directory exists"
+  ansible.builtin.file:
+    path: "{{ paths.data }}/downloads/slskd/incomplete"
+    state: directory
+    owner: "{{ docker_user }}"
+    group: "{{ docker_user }}"
+    mode: "0755"
+  tags:
+    - services

@@ -1,0 +1,30 @@
+---
+- name: "discoverylastfm - Ensure config directory exists"
+  ansible.builtin.file:
+    path: "{{ services_base_path }}/discoverylastfm/config"
+    state: directory
+    owner: "{{ docker_user }}"
+    group: "{{ docker_user }}"
+    mode: "0755"
+  tags:
+    - services
+
+- name: "discoverylastfm - Ensure logs directory exists"
+  ansible.builtin.file:
+    path: "{{ services_base_path }}/discoverylastfm/logs"
+    state: directory
+    owner: "{{ docker_user }}"
+    group: "{{ docker_user }}"
+    mode: "0755"
+  tags:
+    - services
+
+- name: "discoverylastfm - Ensure cache directory exists"
+  ansible.builtin.file:
+    path: "{{ services_base_path }}/discoverylastfm/cache"
+    state: directory
+    owner: "{{ docker_user }}"
+    group: "{{ docker_user }}"
+    mode: "0755"
+  tags:
+    - services
