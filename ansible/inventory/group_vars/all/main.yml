@@ -3,6 +3,7 @@ internal_domain: "internal"
 timezone: "America/Argentina/Buenos_Aires"
 
 nas_ip: "10.0.0.2"
+tailscale_routes_network: "10.0.0.0/24"
 
 paths:
   raid: "/mnt/raid"

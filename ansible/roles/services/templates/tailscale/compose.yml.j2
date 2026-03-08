@@ -14,7 +14,7 @@ services:
       - TS_STATE_DIR=/state
       - TS_USERSPACE=false
       - TS_EXTRA_ARGS=--advertise-tags=tag:server --advertise-exit-node
-      - TS_ROUTES={{ nas_ip }}/24
+      - TS_ROUTES={{ tailscale_routes_network }}
     devices:
       - /dev/net/tun:/dev/net/tun
     cap_add:
