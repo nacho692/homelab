@@ -1,0 +1,10 @@
+---
+- name: Run nixos-rebuild switch
+  command: nixos-rebuild switch --flake {{ nixos_config_path }}{{ nixos_rebuild_flake_attr }}
+  become: true
+  timeout: "{{ nixos_rebuild_timeout }}"
+  register: nixos_rebuild_result
+
+- name: Show nixos-rebuild output
+  debug:
+    var: nixos_rebuild_result.stdout_lines

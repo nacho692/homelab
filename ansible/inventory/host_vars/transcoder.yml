@@ -1,0 +1,6 @@
+---
+# NixOS transcoder host
+# Docker managed via NixOS configuration, not ansible
+# Services not deployed via ansible
+ansible_python_interpreter: auto
+git_group: users

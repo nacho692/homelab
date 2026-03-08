@@ -1,15 +1,47 @@
 ---
-- name: Setup all hosts
+- name: Bootstrap NixOS hosts
   hosts: all
+  gather_facts: false
   become: true
-  roles:
-    - common
-    - docker
+  pre_tasks:
+    - name: Bootstrap Python and git on NixOS
+      raw: which python3 && which git || nix-env -iA nixos.python3 nixos.git
+      changed_when: false
 
-- name: Deploy services
+- name: Setup NAS host
   hosts: nas
   become: true
   roles:
+    - common
+
+- name: Setup git on all hosts
+  hosts: all
+  become: true
+  roles:
+    - git-setup
+
+- name: Rebuild NixOS configuration
+  hosts: nixos
+  become: true
+  roles:
+    - nixos-rebuild
+  tags:
+    - nixos
+
+- name: Clean up NixOS bootstrap packages
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Remove nix-env python3 and git
+      raw: nix-env -e python3 git 2>/dev/null || true
+      changed_when: false
+
+- name: Deploy NAS
+  hosts: nas-host
+  become: true
+  roles:
+    - docker
     - services
   tags:
     - services

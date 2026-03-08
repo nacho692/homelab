@@ -1,0 +1,90 @@
+---
+# Install git on APT-based systems
+- name: Install git via APT
+  apt:
+    name: git
+    state: present
+    update_cache: yes
+  when: ansible_pkg_mgr == 'apt'
+
+# On NixOS, git should be declared in configuration.nix — just verify it exists
+- name: Verify git is available on NixOS
+  command: which git
+  register: git_check
+  changed_when: false
+  failed_when: git_check.rc != 0
+  when: ansible_pkg_mgr != 'apt'
+
+# SSH key deployment
+- name: Ensure .ssh directory exists
+  file:
+    path: "/home/{{ git_user }}/.ssh"
+    state: directory
+    owner: "{{ git_user }}"
+    group: "{{ git_group }}"
+    mode: "0700"
+
+- name: Deploy GitHub SSH private key
+  copy:
+    content: "{{ github_ssh_key }}"
+    dest: "/home/{{ git_user }}/.ssh/github_homelab"
+    owner: "{{ git_user }}"
+    group: "{{ git_group }}"
+    mode: "0600"
+  no_log: true
+
+- name: Deploy GitHub SSH public key
+  copy:
+    content: "{{ github_ssh_pubkey }}"
+    dest: "/home/{{ git_user }}/.ssh/github_homelab.pub"
+    owner: "{{ git_user }}"
+    group: "{{ git_group }}"
+    mode: "0644"
+
+- name: Configure SSH to use GitHub key
+  blockinfile:
+    path: "/home/{{ git_user }}/.ssh/config"
+    create: yes
+    owner: "{{ git_user }}"
+    group: "{{ git_group }}"
+    mode: "0644"
+    marker: "# {mark} ANSIBLE MANAGED - GitHub homelab"
+    block: |
+      Host github.com
+        HostName github.com
+        User git
+        IdentityFile ~/.ssh/github_homelab
+        StrictHostKeyChecking accept-new
+
+- name: Add GitHub to known_hosts
+  known_hosts:
+    name: github.com
+    key: "{{ lookup('pipe', 'ssh-keyscan -t ed25519 github.com 2>/dev/null') }}"
+    path: "/home/{{ git_user }}/.ssh/known_hosts"
+    state: present
+
+# Clone nixos-config repository
+- name: Clone/update nixos-config repository
+  git:
+    repo: "{{ nixos_config_repo }}"
+    dest: "{{ nixos_config_path }}"
+    version: "{{ nixos_config_branch }}"
+    update: yes
+    force: no
+    accept_hostkey: yes
+    key_file: "/home/{{ git_user }}/.ssh/github_homelab"
+  become: yes
+  become_user: "{{ git_user }}"
+  register: git_clone
+
+- name: Set nixos-config ownership
+  file:
+    path: "{{ nixos_config_path }}"
+    owner: "{{ git_user }}"
+    group: "{{ git_group }}"
+    recurse: yes
+    state: directory
+
+- name: Display clone/update status
+  debug:
+    msg: "Repository {{ 'updated' if git_clone.changed else 'already up to date' }} at {{ nixos_config_path }}"

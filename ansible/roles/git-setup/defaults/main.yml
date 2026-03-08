@@ -1,0 +1,4 @@
+---
+# Git setup role defaults
+git_user: "{{ docker_user }}"
+git_group: "{{ git_user }}"

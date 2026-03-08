@@ -1,0 +1,3 @@
+---
+nixos_rebuild_flake_attr: "#transcoder"
+nixos_rebuild_timeout: 900

@@ -56,5 +56,12 @@ service_ports:
 # Immich
 immich_version: "v2"
 
+# Git repository configuration
+github_ssh_key: "{{ vault_github_ssh_key }}"
+github_ssh_pubkey: "{{ vault_github_ssh_pubkey }}"
+nixos_config_repo: "git@github.com:nacho692/nixos-config.git"
+nixos_config_path: "/home/{{ docker_user }}/nixos-config"
+nixos_config_branch: "master"
+
 # Ansible become password from vault
 ansible_become_pass: "{{ vault_ansible_become_pass }}"
