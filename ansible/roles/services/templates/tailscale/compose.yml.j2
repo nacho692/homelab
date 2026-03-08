@@ -12,8 +12,9 @@ services:
       - TS_ENABLE_METRICS=true
       - TS_HOSTNAME={{ tailscale_hostname }}
       - TS_STATE_DIR=/state
+      - TS_USERSPACE=false
       - TS_EXTRA_ARGS=--advertise-tags=tag:server --advertise-exit-node
-      - TS_ROUTES={{ nas_ip }}/32
+      - TS_ROUTES={{ nas_ip }}/24
     devices:
       - /dev/net/tun:/dev/net/tun
     cap_add:
