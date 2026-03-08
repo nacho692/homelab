@@ -10,9 +10,9 @@ nfs_exports:
   - path: /media/data
     clients:
       - network: 10.0.0.0/24
-        options: rw,sync,no_subtree_check,no_root_squash
+        options: rw,sync,no_subtree_check,no_root_squash,fsid=1
       - network: 10.0.1.0/24
-        options: rw,sync,no_subtree_check,no_root_squash
+        options: rw,sync,no_subtree_check,no_root_squash,fsid=1
 
 enabled_services:
   # Networking
