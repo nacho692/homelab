@@ -1,0 +1,6 @@
+# Managed by Ansible
+{% for export in nfs_exports %}
+{% for client in export.clients %}
+{{ export.path }} {{ client.network }}({{ client.options }})
+{% endfor %}
+{% endfor %}

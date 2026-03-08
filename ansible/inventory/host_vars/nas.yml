@@ -1,5 +1,19 @@
 docker_data_root: "/mnt/raid/docker"
 
+nfs_exports:
+  - path: /mnt/raid
+    clients:
+      - network: 10.0.0.0/24
+        options: rw,sync,no_subtree_check,no_root_squash
+      - network: 10.0.1.0/24
+        options: rw,sync,no_subtree_check,no_root_squash
+  - path: /media/data
+    clients:
+      - network: 10.0.0.0/24
+        options: rw,sync,no_subtree_check,no_root_squash
+      - network: 10.0.1.0/24
+        options: rw,sync,no_subtree_check,no_root_squash
+
 enabled_services:
   # Networking
   - pihole
