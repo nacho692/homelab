@@ -4,16 +4,26 @@ tls:
 mqtt:
   enabled: false
 
+detectors:
+  ov:
+    type: openvino
+    device: GPU
+
+model:
+  width: 300
+  height: 300
+  input_tensor: nhwc
+  input_pixel_format: bgr
+  path: /openvino-model/ssdlite_mobilenet_v2.xml
+  labelmap_path: /openvino-model/coco_91cl_bkgr.txt
+
 detect:
   enabled: true
-  width: 1920
-  height: 1080
 
 record:
   enabled: true
-  retain:
+  motion:
     days: 3
-    mode: motion
   alerts:
     retain:
       days: 14

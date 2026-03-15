@@ -1,0 +1,22 @@
+services:
+  couchdb:
+    image: couchdb:3
+    container_name: obsidian-livesync
+    environment:
+      - COUCHDB_USER={{ vault_couchdb_user }}
+      - COUCHDB_PASSWORD={{ vault_couchdb_password }}
+    volumes:
+      - {{ paths.config }}/obsidian-livesync/data:/opt/couchdb/data
+      - {{ paths.config }}/obsidian-livesync/local.d:/opt/couchdb/etc/local.d
+    ports:
+      - "{{ service_ports.obsidian_livesync }}:5984"
+    restart: unless-stopped
+    networks:
+      - internal
+    labels:
+      caddy: obsidian.{{ domain }}
+      caddy.reverse_proxy: "{% raw %}{{upstreams 5984}}{% endraw %}"
+
+networks:
+  internal:
+    external: true

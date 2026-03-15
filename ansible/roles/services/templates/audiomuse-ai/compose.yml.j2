@@ -6,7 +6,7 @@ services:
       - redis-data:/data
     restart: unless-stopped
     networks:
-      - media
+      - internal
 
   audiomuse-postgres:
     image: postgres:15-alpine
@@ -19,10 +19,10 @@ services:
       - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
-      - media
+      - internal
 
   audiomuse-flask:
-    image: ghcr.io/neptunehub/audiomuse-ai:latest-noavx2
+    image: ghcr.io/neptunehub/audiomuse-ai:latest
     container_name: audiomuse_flask
     env_file:
       - .env
@@ -40,14 +40,10 @@ services:
       - audiomuse-postgres
     restart: unless-stopped
     networks:
-      - media
-    labels:
-      caddy: audiomuse.{{ internal_domain }}
-      caddy.reverse_proxy: "{% raw %}{{upstreams 8000}}{% endraw %}"
-      caddy.tls: internal
+      - internal
 
   audiomuse-worker:
-    image: ghcr.io/neptunehub/audiomuse-ai:latest-noavx2
+    image: ghcr.io/neptunehub/audiomuse-ai:latest
     container_name: audiomuse_worker
     env_file:
       - .env
@@ -64,7 +60,7 @@ services:
     restart: unless-stopped
     mem_limit: 4g
     networks:
-      - media
+      - internal
 
 volumes:
   redis-data:
@@ -73,5 +69,5 @@ volumes:
   temp-audio-worker:
 
 networks:
-  media:
+  internal:
     external: true

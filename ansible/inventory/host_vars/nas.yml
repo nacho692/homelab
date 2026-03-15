@@ -45,10 +45,10 @@ enabled_services:
   - jfa-go
   # Backup
   - borgmatic
-  # Music AI
-  - audiomuse-ai
   # Music Discovery
   - discoverylastfm
+  # Notes
+  - obsidian-livesync
 
 # GPU
 render_group: "110"

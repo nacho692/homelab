@@ -21,6 +21,6 @@
 
 - name: Navidrome - AudioMuse-AI plugin setup
   ansible.builtin.include_tasks: navidrome.yml
-  when: "'navidrome' in enabled_services and 'audiomuse-ai' in enabled_services"
+  when: "'navidrome' in enabled_services"
   tags:
     - services

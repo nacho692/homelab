@@ -54,6 +54,7 @@ service_ports:
   slskd: 5030
   frigate: 8971
   audiomuse: 8000
+  obsidian_livesync: 5984
 
 # Immich
 immich_version: "v2"
