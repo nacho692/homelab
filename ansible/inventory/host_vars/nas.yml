@@ -45,8 +45,6 @@ enabled_services:
   - jfa-go
   # Backup
   - borgmatic
-  # Surveillance
-  - frigate
   # Music AI
   - audiomuse-ai
   # Music Discovery

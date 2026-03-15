@@ -12,7 +12,7 @@ services:
       - "8555:8555/udp"
     environment:
       - TZ={{ timezone }}
-      - LIBVA_DRIVER_NAME=radeonsi
+      - LIBVA_DRIVER_NAME={{ libva_driver_name }}
     group_add:
       - "{{ render_group }}"
     devices:
@@ -26,10 +26,6 @@ services:
         tmpfs:
           size: 1000000000
     shm_size: "256mb"
-    labels:
-      caddy: frigate.{{ internal_domain }}
-      caddy.reverse_proxy: "{% raw %}{{upstreams 8971}}{% endraw %}"
-      caddy.tls: internal
 
 networks:
   internal:

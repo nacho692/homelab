@@ -4,7 +4,7 @@
     path: "{{ services_base_path }}/{{ service_name }}"
     state: directory
     owner: "{{ docker_user }}"
-    group: "{{ docker_user }}"
+    group: "{{ docker_group }}"
     mode: "0755"
   tags:
     - services
@@ -14,7 +14,7 @@
     src: "{{ service_name }}/compose.yml.j2"
     dest: "{{ services_base_path }}/{{ service_name }}/compose.yml"
     owner: "{{ docker_user }}"
-    group: "{{ docker_user }}"
+    group: "{{ docker_group }}"
     mode: "0644"
   register: compose_result
   tags:
@@ -34,7 +34,7 @@
     src: "{{ service_name }}/.env.j2"
     dest: "{{ services_base_path }}/{{ service_name }}/.env"
     owner: "{{ docker_user }}"
-    group: "{{ docker_user }}"
+    group: "{{ docker_group }}"
     mode: "0600"
   register: env_result
   when: env_template.stat.exists
@@ -73,7 +73,7 @@
     path: "{{ services_base_path }}/{{ service_name }}/{{ item.path | relpath(role_path + '/templates/' + service_name) | dirname }}"
     state: directory
     owner: "{{ docker_user }}"
-    group: "{{ docker_user }}"
+    group: "{{ docker_group }}"
     mode: "0755"
   loop: "{{ extra_templates.files + static_files.files }}"
   when: (item.path | relpath(role_path + '/templates/' + service_name) | dirname) != '.'
@@ -85,7 +85,7 @@
     src: "{{ item.path }}"
     dest: "{{ services_base_path }}/{{ service_name }}/{{ item.path | relpath(role_path + '/templates/' + service_name) | regex_replace('\\.j2$', '') }}"
     owner: "{{ docker_user }}"
-    group: "{{ docker_user }}"
+    group: "{{ docker_group }}"
     mode: "0644"
   loop: "{{ extra_templates.files }}"
   register: extra_result
@@ -97,7 +97,7 @@
     src: "{{ item.path }}"
     dest: "{{ services_base_path }}/{{ service_name }}/{{ item.path | relpath(role_path + '/templates/' + service_name) }}"
     owner: "{{ docker_user }}"
-    group: "{{ docker_user }}"
+    group: "{{ docker_group }}"
     mode: "0644"
   loop: "{{ static_files.files }}"
   register: static_result

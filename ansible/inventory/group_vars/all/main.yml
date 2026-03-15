@@ -18,6 +18,7 @@ docker_networks:
   - internal
 
 docker_user: skynet
+docker_group: "{{ docker_user }}"
 
 common_packages:
   - curl

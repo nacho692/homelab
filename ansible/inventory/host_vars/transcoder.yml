@@ -1,6 +1,16 @@
 ---
 # NixOS transcoder host
 # Docker managed via NixOS configuration, not ansible
-# Services not deployed via ansible
 ansible_python_interpreter: auto
 git_group: users
+docker_group: users
+
+enabled_services:
+  - frigate
+
+docker_networks:
+  - internal
+
+render_group: "303"
+gpu_device: "/dev/dri/renderD128"
+libva_driver_name: "iHD"
