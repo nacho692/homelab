@@ -1,3 +1,4 @@
 ---
+nixos_rebuild_flake_dir: "nixos"
 nixos_rebuild_flake_attr: "#{{ inventory_hostname }}"
 nixos_rebuild_timeout: 900

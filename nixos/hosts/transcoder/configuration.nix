@@ -1,0 +1,109 @@
+{ config, pkgs, ... }:
+
+{
+  imports =
+    [
+      ./hardware-configuration.nix
+    ];
+
+  # Bootloader.
+  boot.loader.grub.enable = true;
+  boot.loader.grub.device = "/dev/sda";
+  boot.loader.grub.useOSProber = true;
+
+  # Use latest kernel.
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+
+  networking.hostName = "transcoder";
+
+  # Enable networking
+  networking.networkmanager.enable = true;
+
+  # Set your time zone.
+  time.timeZone = "America/Argentina/Buenos_Aires";
+
+  # Select internationalisation properties.
+  i18n.defaultLocale = "en_US.UTF-8";
+
+  i18n.extraLocaleSettings = {
+    LC_ADDRESS = "es_AR.UTF-8";
+    LC_IDENTIFICATION = "es_AR.UTF-8";
+    LC_MEASUREMENT = "es_AR.UTF-8";
+    LC_MONETARY = "es_AR.UTF-8";
+    LC_NAME = "es_AR.UTF-8";
+    LC_NUMERIC = "es_AR.UTF-8";
+    LC_PAPER = "es_AR.UTF-8";
+    LC_TELEPHONE = "es_AR.UTF-8";
+    LC_TIME = "es_AR.UTF-8";
+  };
+
+  # Configure keymap in X11
+  services.xserver.xkb = {
+    layout = "us";
+    variant = "intl";
+  };
+
+  # Configure console keymap
+  console.keyMap = "us-acentos";
+
+  # Enable sound with pipewire.
+  services.pulseaudio.enable = false;
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
+
+  # NFS client support
+  boot.supportedFilesystems = [ "nfs" ];
+
+  fileSystems."/mnt/raid" = {
+    device = "10.0.0.2:/mnt/raid";
+    fsType = "nfs";
+    options = [ "nfsvers=4" "_netdev" ];
+  };
+
+  fileSystems."/media/data" = {
+    device = "10.0.0.2:/media/data";
+    fsType = "nfs";
+    options = [ "nfsvers=4" "_netdev" ];
+  };
+
+  users.users.skynet = {
+    isNormalUser = true;
+    description = "Ignacio";
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
+  };
+
+  # Tailscale
+  services.tailscale.enable = true;
+  services.tailscale.useRoutingFeatures = "client";
+
+  # Enable docker
+  virtualisation.docker.enable = true;
+
+  # Allow unfree packages
+  nixpkgs.config.allowUnfree = true;
+
+  # Enable flakes
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  # System packages
+  environment.systemPackages = with pkgs; [
+    vim
+    wget
+    git
+    dnsutils
+    python3
+  ];
+
+  # For non nixOS binaries (e.g: uv python installs)
+  programs.nix-ld.enable = true;
+
+  # Enable SSH
+  services.openssh.enable = true;
+
+  system.stateVersion = "25.11";
+}
