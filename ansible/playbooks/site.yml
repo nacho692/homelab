@@ -1,4 +1,16 @@
 ---
+- name: Setup Deb hosts
+  hosts: deb
+  become: true
+  roles:
+    - common
+
+- name: Setup git on all hosts
+  hosts: all
+  become: true
+  roles:
+    - git-setup
+
 - name: Setup NixOS hosts
   hosts: nixos
   gather_facts: false
@@ -15,18 +27,6 @@
       changed_when: false
   tags:
     - nixos
-
-- name: Setup Deb hosts
-  hosts: deb
-  become: true
-  roles:
-    - common
-
-- name: Setup git on all hosts
-  hosts: all
-  become: true
-  roles:
-    - git-setup
 
 - name: Deploy NAS
   hosts: nas

@@ -1,6 +1,6 @@
 ---
 - name: Run nixos-rebuild switch
-  command: nixos-rebuild switch --flake {{ nixos_config_path }}?dir={{ nixos_rebuild_flake_dir }}{{ nixos_rebuild_flake_attr }}
+  command: nixos-rebuild switch --flake path:{{ nixos_config_path }}?dir={{ nixos_rebuild_flake_dir }}{{ nixos_rebuild_flake_attr }}
   become: true
   timeout: "{{ nixos_rebuild_timeout }}"
   register: nixos_rebuild_result
