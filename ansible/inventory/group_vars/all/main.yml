@@ -55,6 +55,13 @@ service_ports:
   frigate: 8971
   audiomuse: 8000
   obsidian_livesync: 5984
+  homeassistant: 8123
+  mosquitto: 1883
+
+# Home Assistant
+frigate_hass_integration_version: "v5.14.2"
+ha_notify_services:
+  - notify.mobile_app_sm_a528b
 
 # Immich
 immich_version: "v2"

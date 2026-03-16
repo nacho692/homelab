@@ -1,0 +1,28 @@
+---
+- name: "homeassistant - Ensure mosquitto config directory exists"
+  ansible.builtin.file:
+    path: "{{ services_base_path }}/homeassistant/mosquitto"
+    state: directory
+    owner: "{{ docker_user }}"
+    group: "{{ docker_group }}"
+    mode: "0755"
+  tags:
+    - services
+
+- name: "homeassistant - Generate mosquitto password file"
+  ansible.builtin.shell: |
+    docker run --rm eclipse-mosquitto:2 sh -c "mosquitto_passwd -b -c /tmp/passwd '{{ vault_mqtt_user }}' '{{ vault_mqtt_password }}' && cat /tmp/passwd"
+  register: mosquitto_passwd_result
+  changed_when: false
+  tags:
+    - services
+
+- name: "homeassistant - Write mosquitto password file"
+  ansible.builtin.copy:
+    content: "{{ mosquitto_passwd_result.stdout }}"
+    dest: "{{ services_base_path }}/homeassistant/mosquitto/passwd"
+    owner: "{{ docker_user }}"
+    group: "{{ docker_group }}"
+    mode: "0644"
+  tags:
+    - services

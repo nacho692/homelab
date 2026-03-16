@@ -1,0 +1,28 @@
+# Frigate alerts - Managed by Ansible
+automation:
+  - id: frigate_unknown_person_alert
+    alias: "Frigate - Unknown Person Alert"
+    description: "Notify when a person not recognized as a known face is detected"
+    mode: parallel
+    trigger:
+      - platform: mqtt
+        topic: frigate/events
+    condition:
+      - condition: template
+        value_template: >-
+          {{ '{{' }} trigger.payload_json.type == 'end'
+             and trigger.payload_json.after.label == 'person'
+             and (trigger.payload_json.after.sub_label is none
+                  or trigger.payload_json.after.sub_label | lower not in ['nora', 'ricardo']) {{ '}}' }}
+    action:
+{% for service in ha_notify_services %}
+      - action: {{ service }}
+        data:
+          title: "Unknown Person Detected"
+          message: "An unrecognized person was detected on {{ '{{' }} trigger.payload_json.after.camera {{ '}}' }}"
+          data:
+            image: "/api/frigate/notifications/{{ '{{' }} trigger.payload_json.after.id {{ '}}' }}/snapshot.jpg"
+            tag: "frigate-{{ '{{' }} trigger.payload_json.after.id {{ '}}' }}"
+            group: "frigate-unknown-person"
+            clickAction: "https://frigate.{{ internal_domain }}/review?id={{ '{{' }} trigger.payload_json.after.id {{ '}}' }}"
+{% endfor %}

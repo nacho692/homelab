@@ -2,7 +2,12 @@ tls:
   enabled: false
 
 mqtt:
-  enabled: false
+  enabled: true
+  host: homeassistant.{{ internal_domain }}
+  port: {{ service_ports.mosquitto }}
+  user: {{ vault_mqtt_user }}
+  password: {{ vault_mqtt_password }}
+  topic_prefix: frigate
 
 detectors:
   ov:

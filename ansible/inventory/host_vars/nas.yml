@@ -50,6 +50,9 @@ enabled_services:
   # Notes
   - obsidian-livesync
 
+  # Home Automation
+  - homeassistant
+
 # GPU
 render_group: "110"
 gpu_device: "/dev/dri/renderD128"

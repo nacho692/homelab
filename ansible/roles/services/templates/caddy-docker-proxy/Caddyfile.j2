@@ -7,3 +7,12 @@ audiomuse.{{ internal_domain }} {
     reverse_proxy 10.0.0.120:8000
     tls internal
 }
+
+homeassistant.{{ internal_domain }} {
+    reverse_proxy {{ nas_ip }}:{{ service_ports.homeassistant }}
+    tls internal
+}
+
+homeassistant.{{ domain }} {
+    reverse_proxy {{ nas_ip }}:{{ service_ports.homeassistant }}
+}

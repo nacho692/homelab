@@ -1,0 +1,44 @@
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    network_mode: host
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - {{ paths.config }}/homeassistant/config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    environment:
+      - TZ={{ timezone }}
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mosquitto
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-u", "{{ vault_mqtt_user }}", "-P", "{{ vault_mqtt_password }}", "-t", "$$SYS/#", "-C", "1", "-W", "3"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - internal
+    ports:
+      - "{{ service_ports.mosquitto }}:1883"
+    volumes:
+      - {{ paths.config }}/homeassistant/mosquitto:/mosquitto/config
+      - mosquitto-data:/mosquitto/data
+      - mosquitto-log:/mosquitto/log
+    environment:
+      - TZ={{ timezone }}
+
+volumes:
+  mosquitto-data:
+  mosquitto-log:
+
+networks:
+  internal:
+    external: true
