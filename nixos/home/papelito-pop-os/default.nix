@@ -9,6 +9,44 @@ let
   pkgs-stable = import nixpkgs-stable {
     system = "x86_64-linux";
   };
+  homeassistant-config = "${config.home.homeDirectory}/.config/homeassistant";
+  homeassistant-setup = pkgs.writeShellScript "homeassistant-setup" ''
+    set -e
+    CONFIG="${homeassistant-config}"
+    mkdir -p "$CONFIG/custom_components" "$CONFIG/themes"
+
+    install_integration() {
+      local name=$1 repo=$2 version=$3
+      if [ ! -d "$CONFIG/custom_components/$name" ]; then
+        local tmp=$(mktemp -d)
+        ${pkgs.curl}/bin/curl -sL "https://github.com/$repo/archive/refs/tags/$version.tar.gz" | tar xz -C "$tmp"
+        cp -r "$tmp"/*/custom_components/"$name" "$CONFIG/custom_components/"
+        rm -rf "$tmp"
+      fi
+    }
+
+    install_integration remote_homeassistant custom-components/remote_homeassistant 4.6
+    install_integration localtuya rospogrigio/localtuya v5.2.5
+
+    # Ensure configuration.yaml exists with defaults
+    if [ ! -f "$CONFIG/configuration.yaml" ]; then
+      cat > "$CONFIG/configuration.yaml" << 'YAML'
+default_config:
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+remote_homeassistant:
+  instances: []
+YAML
+    fi
+
+    touch "$CONFIG/automations.yaml" "$CONFIG/scripts.yaml" "$CONFIG/scenes.yaml"
+  '';
 in
 {
   imports = [
@@ -29,6 +67,7 @@ in
     pkgs.mpdris2-rs
     pkgs.pa-dlna-chromecast
     pkgs-stable.gupnp-tools
+    pkgs.nodejs_22
   ];
 
   home.sessionPath = [
@@ -115,6 +154,38 @@ in
     };
     Install = {
       WantedBy = [ "mpd.service" ];
+    };
+  };
+
+  systemd.user.services.homeassistant = {
+    Unit = {
+      Description = "Home Assistant local instance";
+      After = [ "network-online.target" ];
+      Wants = [ "network-online.target" ];
+    };
+    Service = {
+      ExecStartPre = [
+        "${homeassistant-setup}"
+        "-/usr/bin/docker rm -f homeassistant-local"
+      ];
+      ExecStart = builtins.concatStringsSep " " [
+        "/usr/bin/docker run"
+        "--name homeassistant-local"
+        "--rm"
+        "--network=host"
+        "--privileged"
+        "-v ${homeassistant-config}:/config"
+        "-v /etc/localtime:/etc/localtime:ro"
+        "-v /run/dbus:/run/dbus:ro"
+        "-e TZ=America/Argentina/Buenos_Aires"
+        "ghcr.io/home-assistant/home-assistant:stable"
+      ];
+      ExecStop = "/usr/bin/docker stop homeassistant-local";
+      Restart = "on-failure";
+      RestartSec = 10;
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
     };
   };
 
