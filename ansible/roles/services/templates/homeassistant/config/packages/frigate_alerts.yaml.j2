@@ -24,5 +24,5 @@ automation:
             image: "/api/frigate/notifications/{{ '{{' }} trigger.payload_json.after.id {{ '}}' }}/snapshot.jpg"
             tag: "frigate-{{ '{{' }} trigger.payload_json.after.id {{ '}}' }}"
             group: "frigate-unknown-person"
-            clickAction: "https://frigate.{{ internal_domain }}/review?id={{ '{{' }} trigger.payload_json.after.id {{ '}}' }}"
+            clickAction: "https://homeassistant.{{ domain }}/api/frigate/notifications/{{ '{{' }} trigger.payload_json.after.id {{ '}}' }}/clip.mp4"
 {% endfor %}

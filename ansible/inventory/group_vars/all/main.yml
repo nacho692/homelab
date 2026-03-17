@@ -60,6 +60,7 @@ service_ports:
 
 # Home Assistant
 frigate_hass_integration_version: "v5.14.2"
+remote_hass_integration_version: "4.6"
 ha_notify_services:
   - notify.mobile_app_sm_a528b
 
