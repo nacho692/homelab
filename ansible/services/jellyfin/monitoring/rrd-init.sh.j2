@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+RRD_FILE="{{ monitoring_metrics_path }}/{{ inventory_hostname }}/jellyfin.rrd"
+
+if [ -f "$RRD_FILE" ]; then echo "EXISTS jellyfin.rrd"; exit 0; fi
+
+rrdtool create "$RRD_FILE" \
+    --step {{ monitoring_rrd_step }} \
+    DS:latency_ms:GAUGE:600:0:U \
+    DS:active_streams:GAUGE:600:0:U \
+    DS:transcoding:GAUGE:600:0:U \
+{% for rra in monitoring_rrd_rra %}
+    {{ rra }}{{ " \\" if not loop.last else "" }}
+{% endfor %}
+
+echo "CREATED jellyfin.rrd"

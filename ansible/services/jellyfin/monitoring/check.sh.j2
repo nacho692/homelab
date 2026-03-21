@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+source "{{ monitoring_base_path }}/alert-helper.sh"
+JELLYFIN_URL="http://localhost:{{ service_ports.jellyfin }}"
+
+if ! curl -sf -o /dev/null "${JELLYFIN_URL}/health" 2>/dev/null; then
+    alert_ha "Jellyfin Down" "Jellyfin is not responding on {{ inventory_hostname }}"
+fi

@@ -1,0 +1,34 @@
+---
+- name: Create monitoring directory structure
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - "{{ monitoring_base_path }}"
+    - "{{ monitoring_base_path }}/host"
+    - "{{ monitoring_metrics_path }}/{{ inventory_hostname }}"
+
+- name: Template core monitoring scripts
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ monitoring_base_path }}/{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - { src: run-all.sh.j2, dest: run-all.sh }
+    - { src: alert-helper.sh.j2, dest: alert-helper.sh }
+    - { src: host-metrics.sh.j2, dest: host/collect.sh }
+    - { src: rrd-init-host.sh.j2, dest: host/rrd-init.sh }
+
+- name: Template custom host-level monitoring scripts
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ monitoring_base_path }}/{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ monitoring_host_custom_templates }}"

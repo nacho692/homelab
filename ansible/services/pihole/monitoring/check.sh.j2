@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+source "{{ monitoring_base_path }}/alert-helper.sh"
+PIHOLE_URL="http://localhost:{{ service_ports.pihole_web }}"
+
+# Check web interface
+if ! curl -sf -o /dev/null "${PIHOLE_URL}/admin/" 2>/dev/null; then
+    alert_ha "Pi-hole Down" "Pi-hole web interface is not responding on {{ inventory_hostname }}"
+fi
+
+# Check DNS resolution
+if ! dig +short +timeout=2 @127.0.0.1 cloudflare.com >/dev/null 2>&1; then
+    alert_ha "Pi-hole DNS Down" "Pi-hole DNS resolution failing on {{ inventory_hostname }}"
+fi

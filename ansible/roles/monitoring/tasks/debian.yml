@@ -1,0 +1,8 @@
+---
+- name: Install rrdtool and dependencies
+  ansible.builtin.apt:
+    name:
+      - rrdtool
+      - bc
+    state: present
+    update_cache: true

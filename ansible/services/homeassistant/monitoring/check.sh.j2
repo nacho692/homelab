@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+source "{{ monitoring_base_path }}/alert-helper.sh"
+HA_URL="http://localhost:{{ service_ports.homeassistant }}"
+
+if ! curl -sf -o /dev/null -H "Authorization: Bearer {{ vault_ha_api_token }}" \
+    "${HA_URL}/api/" 2>/dev/null; then
+    alert_ha "Home Assistant Down" "HA is not responding on {{ inventory_hostname }}"
+fi

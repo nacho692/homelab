@@ -47,8 +47,11 @@
   hosts: nas
   become: true
   roles:
-    - docker
-    - services
-    - nfs-server
-  tags:
-    - services
+    - role: docker
+      tags: services
+    - role: monitoring
+      tags: [services, monitoring]
+    - role: services
+      tags: services
+    - role: nfs-server
+      tags: services

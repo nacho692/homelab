@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+RRD_FILE="{{ monitoring_metrics_path }}/{{ inventory_hostname }}/smartctl.rrd"
+
+if [ -f "$RRD_FILE" ]; then
+    echo "EXISTS smartctl.rrd"
+    exit 0
+fi
+
+rrdtool create "$RRD_FILE" \
+    --step {{ monitoring_rrd_step }} \
+{% for device in scrutiny_devices %}
+{% set dev_short = device | regex_replace('/dev/', '') %}
+    DS:temp_{{ dev_short }}:GAUGE:600:0:100 \
+    DS:realloc_{{ dev_short }}:GAUGE:600:0:U \
+{% endfor %}
+{% for rra in monitoring_rrd_rra %}
+    {{ rra }}{{ " \\" if not loop.last else "" }}
+{% endfor %}
+
+echo "CREATED smartctl.rrd"

@@ -1,0 +1,11 @@
+title: Jellyfin
+graphs:
+  - title: "Response Latency"
+    ds: ["latency_ms"]
+    units: "ms"
+  - title: "Active Streams"
+    ds: ["active_streams"]
+    units: "count"
+  - title: "Transcoding Sessions"
+    ds: ["transcoding"]
+    units: "count"

@@ -57,6 +57,7 @@ service_ports:
   obsidian_livesync: 5984
   homeassistant: 8123
   mosquitto: 1883
+  ilias: 8082
 
 # Home Assistant
 frigate_hass_integration_version: "v5.14.2"

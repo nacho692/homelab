@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+RRD_FILE="{{ monitoring_metrics_path }}/{{ inventory_hostname }}/host.rrd"
+source "{{ monitoring_base_path }}/alert-helper.sh"
+
+# CPU usage (percentage, from /proc/stat delta over 1 second)
+read -r cpu_user cpu_nice cpu_sys cpu_idle cpu_iowait _ < <(
+    awk '/^cpu / {print $2, $3, $4, $5, $6}' /proc/stat
+)
+sleep 1
+read -r cpu_user2 cpu_nice2 cpu_sys2 cpu_idle2 cpu_iowait2 _ < <(
+    awk '/^cpu / {print $2, $3, $4, $5, $6}' /proc/stat
+)
+total_delta=$(( (cpu_user2+cpu_nice2+cpu_sys2+cpu_idle2+cpu_iowait2) - (cpu_user+cpu_nice+cpu_sys+cpu_idle+cpu_iowait) ))
+idle_delta=$(( cpu_idle2 - cpu_idle ))
+if [ "$total_delta" -gt 0 ]; then
+    cpu_pct=$(awk "BEGIN {printf \"%.1f\", 100 * (1 - ${idle_delta}/${total_delta})}")
+else
+    cpu_pct="0.0"
+fi
+
+# RAM (percentage used)
+read -r mem_total mem_avail < <(awk '/MemTotal/{t=$2} /MemAvailable/{a=$2} END{print t, a}' /proc/meminfo)
+ram_pct=$(awk "BEGIN {printf \"%.1f\", 100 * (1 - ${mem_avail}/${mem_total})}")
+
+# Disk usage (root filesystem percentage)
+disk_pct=$(df / | awk 'NR==2 {gsub(/%/,""); print $5}')
+
+# Load averages
+read -r load1 load5 load15 _ < /proc/loadavg
+
+# Temperature (thermal zone 0, or U if unavailable)
+if [ -f /sys/class/thermal/thermal_zone0/temp ]; then
+    temp_raw=$(cat /sys/class/thermal/thermal_zone0/temp)
+    temp=$(awk "BEGIN {printf \"%.1f\", ${temp_raw}/1000}")
+else
+    temp="U"
+fi
+
+rrdtool update "$RRD_FILE" "N:${cpu_pct}:${ram_pct}:${disk_pct}:${load1}:${load5}:${load15}:${temp}"
+
+# --- Threshold checks ---
+if (( $(echo "$cpu_pct > 90" | bc -l) )); then
+    alert_ha "High CPU" "CPU at ${cpu_pct}% on {{ inventory_hostname }}"
+fi
+if (( $(echo "$ram_pct > 90" | bc -l) )); then
+    alert_ha "High RAM" "RAM at ${ram_pct}% on {{ inventory_hostname }}"
+fi
+if (( disk_pct > 90 )); then
+    alert_ha "Disk Full" "Root disk at ${disk_pct}% on {{ inventory_hostname }}"
+fi

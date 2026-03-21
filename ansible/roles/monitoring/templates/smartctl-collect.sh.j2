@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+RRD_FILE="{{ monitoring_metrics_path }}/{{ inventory_hostname }}/smartctl.rrd"
+source "{{ monitoring_base_path }}/alert-helper.sh"
+
+{% for device in scrutiny_devices %}
+{% set dev_short = device | regex_replace('/dev/', '') %}
+smart_json_{{ dev_short }}=$(smartctl -a -j {{ device }} 2>/dev/null || echo '{}')
+temp_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -s -r 'first.temperature.current // "U"')
+realloc_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -s -r '[first.ata_smart_attributes.table[] | select(.id == 5) | .raw.value] | first // 0' 2>/dev/null || echo "0")
+{% endfor %}
+
+rrdtool update "$RRD_FILE" \
+    "N{% for device in scrutiny_devices %}{% set dev_short = device | regex_replace('/dev/', '') %}:${temp_{{ dev_short }}}:${realloc_{{ dev_short }}}{% endfor %}"
+
+# Alert on high disk temps or reallocated sectors
+{% for device in scrutiny_devices %}
+{% set dev_short = device | regex_replace('/dev/', '') %}
+if [ "${temp_{{ dev_short }}}" != "U" ] && (( $(echo "${temp_{{ dev_short }}} > 50" | bc -l) )); then
+    alert_ha "Disk Hot" "{{ device }} at ${temp_{{ dev_short }}}°C on {{ inventory_hostname }}"
+fi
+if [ "${realloc_{{ dev_short }}}" != "0" ] && (( realloc_{{ dev_short }} > 0 )); then
+    alert_ha "Disk Health" "{{ device }} has ${realloc_{{ dev_short }}} reallocated sectors on {{ inventory_hostname }}"
+fi
+{% endfor %}

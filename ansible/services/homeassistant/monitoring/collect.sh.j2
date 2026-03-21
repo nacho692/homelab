@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+RRD_FILE="{{ monitoring_metrics_path }}/{{ inventory_hostname }}/homeassistant.rrd"
+HA_URL="http://localhost:{{ service_ports.homeassistant }}"
+
+# Response latency
+latency=$(curl -sf -o /dev/null -w "%{time_total}" \
+    -H "Authorization: Bearer {{ vault_ha_api_token }}" \
+    "${HA_URL}/api/" 2>/dev/null || echo "U")
+if [ "$latency" != "U" ]; then
+    latency_ms=$(awk "BEGIN {printf \"%.0f\", ${latency} * 1000}")
+else
+    latency_ms="U"
+fi
+
+rrdtool update "$RRD_FILE" "N:${latency_ms}"

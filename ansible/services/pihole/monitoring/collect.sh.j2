@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+RRD_FILE="{{ monitoring_metrics_path }}/{{ inventory_hostname }}/pihole.rrd"
+PIHOLE_URL="http://localhost:{{ service_ports.pihole_web }}"
+
+# Response latency
+latency=$(curl -sf -o /dev/null -w "%{time_total}" "${PIHOLE_URL}/admin/" 2>/dev/null || echo "U")
+if [ "$latency" != "U" ]; then
+    latency_ms=$(awk "BEGIN {printf \"%.0f\", ${latency} * 1000}")
+else
+    latency_ms="U"
+fi
+
+# Pi-hole v6 API: authenticate to get session ID
+sid=$(curl -sf -X POST "${PIHOLE_URL}/api/auth" \
+    -d '{"password":"{{ vault_pihole_password }}"}' \
+    2>/dev/null | jq -r '.session.sid // empty' 2>/dev/null || true)
+
+if [ -n "$sid" ]; then
+    stats_json=$(curl -sf "${PIHOLE_URL}/api/stats/summary" -H "sid: ${sid}" 2>/dev/null || echo "{}")
+    queries_total=$(echo "$stats_json" | jq -r '.queries.total // "U"')
+    queries_blocked=$(echo "$stats_json" | jq -r '.queries.blocked // "U"')
+    blocking_pct=$(echo "$stats_json" | jq -r '.queries.percent_blocked // "U"')
+    gravity_size=$(echo "$stats_json" | jq -r '.gravity.domains_being_blocked // "U"')
+
+    # Logout session
+    curl -sf -X DELETE "${PIHOLE_URL}/api/auth" -H "sid: ${sid}" >/dev/null 2>&1 || true
+else
+    queries_total="U"
+    queries_blocked="U"
+    blocking_pct="U"
+    gravity_size="U"
+fi
+
+rrdtool update "$RRD_FILE" "N:${latency_ms}:${queries_total}:${queries_blocked}:${blocking_pct}:${gravity_size}"

@@ -1,0 +1,21 @@
+services:
+  ilias:
+    image: halverneus/static-file-server:latest
+    container_name: ilias
+    restart: unless-stopped
+    networks:
+      - internal
+    ports:
+      - "{{ service_ports.ilias }}:8080"
+    environment:
+      - FOLDER=/web
+    volumes:
+      - {{ monitoring_graphs_path }}:/web:ro
+    labels:
+      caddy: dashboard.{{ internal_domain }}
+      caddy.reverse_proxy: "{% raw %}{{upstreams 8080}}{% endraw %}"
+      caddy.tls: internal
+
+networks:
+  internal:
+    external: true

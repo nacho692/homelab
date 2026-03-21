@@ -1,0 +1,10 @@
+[Unit]
+Description=Homelab monitoring collection
+After=network-online.target remote-fs.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart={{ monitoring_base_path }}/run-all.sh
+Nice=19
+IOSchedulingClass=idle

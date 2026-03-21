@@ -1,0 +1,19 @@
+---
+monitoring_base_path: "{{ services_base_path }}/monitoring"
+monitoring_metrics_path: "{{ paths.raid }}/monitoring/metrics"
+monitoring_graphs_path: "{{ paths.raid }}/monitoring/graphs"
+monitoring_rrd_step: 300
+monitoring_rrd_rra:
+  - "RRA:AVERAGE:0.5:1:2016"     # 5-min for 7 days
+  - "RRA:AVERAGE:0.5:6:4320"     # 30-min for 90 days
+  - "RRA:AVERAGE:0.5:24:8760"    # 2-hour for 2 years
+  - "RRA:MAX:0.5:1:2016"
+  - "RRA:MAX:0.5:6:4320"
+  - "RRA:MAX:0.5:24:8760"
+
+monitoring_dashboard_enabled: false
+monitoring_host_custom_templates: []
+
+# HA alerting
+monitoring_ha_url: "http://{{ nas_ip }}:{{ service_ports.homeassistant }}"
+monitoring_ha_token: "{{ vault_ha_api_token }}"

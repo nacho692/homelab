@@ -1,0 +1,10 @@
+[Unit]
+Description=Generate monitoring dashboard every 5 minutes
+
+[Timer]
+OnCalendar=*:2/5
+RandomizedDelaySec=30
+Persistent=true
+
+[Install]
+WantedBy=timers.target

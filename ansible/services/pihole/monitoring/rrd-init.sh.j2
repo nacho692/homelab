@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+RRD_FILE="{{ monitoring_metrics_path }}/{{ inventory_hostname }}/pihole.rrd"
+
+if [ -f "$RRD_FILE" ]; then echo "EXISTS pihole.rrd"; exit 0; fi
+
+rrdtool create "$RRD_FILE" \
+    --step {{ monitoring_rrd_step }} \
+    DS:latency_ms:GAUGE:600:0:U \
+    DS:queries_total:DERIVE:600:0:U \
+    DS:queries_blocked:DERIVE:600:0:U \
+    DS:blocking_pct:GAUGE:600:0:100 \
+    DS:gravity_size:GAUGE:600:0:U \
+{% for rra in monitoring_rrd_rra %}
+    {{ rra }}{{ " \\" if not loop.last else "" }}
+{% endfor %}
+
+echo "CREATED pihole.rrd"

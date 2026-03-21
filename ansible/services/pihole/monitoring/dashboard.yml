@@ -1,0 +1,14 @@
+title: Pi-hole
+graphs:
+  - title: "Response Latency"
+    ds: ["latency_ms"]
+    units: "ms"
+  - title: "DNS Queries Rate"
+    ds: ["queries_total", "queries_blocked"]
+    units: "qps"
+  - title: "Blocking Rate"
+    ds: ["blocking_pct"]
+    units: "%"
+  - title: "Gravity List Size"
+    ds: ["gravity_size"]
+    units: "domains"

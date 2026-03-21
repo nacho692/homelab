@@ -1,0 +1,25 @@
+---
+- name: Template monitoring systemd service
+  ansible.builtin.template:
+    src: monitoring.service.j2
+    dest: /etc/systemd/system/monitoring.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Template monitoring systemd timer
+  ansible.builtin.template:
+    src: monitoring.timer.j2
+    dest: /etc/systemd/system/monitoring.timer
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Enable and start monitoring timer
+  ansible.builtin.systemd:
+    name: monitoring.timer
+    enabled: true
+    state: started
+    daemon_reload: true

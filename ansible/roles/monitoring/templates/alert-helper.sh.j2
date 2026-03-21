@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Sourced by check scripts. Provides alert_ha() function.
+
+HA_URL="{{ monitoring_ha_url }}"
+HA_TOKEN="{{ monitoring_ha_token }}"
+HOSTNAME="{{ inventory_hostname }}"
+COOLDOWN_DIR="/tmp/monitoring-cooldown"
+
+mkdir -p "$COOLDOWN_DIR"
+
+alert_ha() {
+    local title="$1"
+    local message="$2"
+    local cooldown_key
+    cooldown_key=$(echo "$title" | md5sum | cut -d' ' -f1)
+    local cooldown_file="${COOLDOWN_DIR}/${cooldown_key}"
+
+    # Skip if alerted in last 30 minutes
+    if [ -f "$cooldown_file" ]; then
+        local age=$(( $(date +%s) - $(stat -c %Y "$cooldown_file") ))
+        [ "$age" -lt 1800 ] && return 0
+    fi
+
+    # Persistent notification in HA
+    curl -sf -X POST \
+        "${HA_URL}/api/services/notify/persistent_notification" \
+        -H "Authorization: Bearer ${HA_TOKEN}" \
+        -H "Content-Type: application/json" \
+        -d "{\"title\": \"[${HOSTNAME}] ${title}\", \"message\": \"${message}\"}" \
+        >/dev/null 2>&1 || true
+
+    # Mobile push notifications
+{% for service in ha_notify_services %}
+    curl -sf -X POST \
+        "${HA_URL}/api/services/{{ service | replace('.', '/') }}" \
+        -H "Authorization: Bearer ${HA_TOKEN}" \
+        -H "Content-Type: application/json" \
+        -d "{\"title\": \"[${HOSTNAME}] ${title}\", \"message\": \"${message}\"}" \
+        >/dev/null 2>&1 || true
+{% endfor %}
+
+    touch "$cooldown_file"
+}

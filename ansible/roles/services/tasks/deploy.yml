@@ -143,3 +143,87 @@
   when: post_hook.stat.exists
   tags:
     - services
+
+# --- Per-service monitoring ---
+
+- name: "{{ service_name }} - Check for monitoring directory"
+  ansible.builtin.stat:
+    path: "{{ services_path }}/{{ service_name }}/monitoring"
+  delegate_to: localhost
+  become: false
+  register: monitoring_dir
+  tags:
+    - services
+
+- name: "{{ service_name }} - Ensure monitoring directory exists on target"
+  ansible.builtin.file:
+    path: "{{ services_base_path }}/{{ service_name }}/monitoring"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  when: monitoring_dir.stat.exists
+  tags:
+    - services
+
+- name: "{{ service_name }} - Find monitoring templates"
+  ansible.builtin.find:
+    paths: "{{ services_path }}/{{ service_name }}/monitoring"
+    patterns: "*.j2"
+    recurse: false
+  delegate_to: localhost
+  become: false
+  register: monitoring_templates
+  when: monitoring_dir.stat.exists
+  tags:
+    - services
+
+- name: "{{ service_name }} - Template monitoring scripts"
+  ansible.builtin.template:
+    src: "{{ item.path }}"
+    dest: "{{ services_base_path }}/{{ service_name }}/monitoring/{{ item.path | basename | regex_replace('\\.j2$', '') }}"
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ monitoring_templates.files | default([]) }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  when: monitoring_dir.stat.exists
+  tags:
+    - services
+
+- name: "{{ service_name }} - Find monitoring static files"
+  ansible.builtin.find:
+    paths: "{{ services_path }}/{{ service_name }}/monitoring"
+    excludes: "*.j2"
+    file_type: file
+    recurse: false
+  delegate_to: localhost
+  become: false
+  register: monitoring_static
+  when: monitoring_dir.stat.exists
+  tags:
+    - services
+
+- name: "{{ service_name }} - Copy monitoring static files"
+  ansible.builtin.copy:
+    src: "{{ item.path }}"
+    dest: "{{ services_base_path }}/{{ service_name }}/monitoring/{{ item.path | basename }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ monitoring_static.files | default([]) }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  when: monitoring_dir.stat.exists
+  tags:
+    - services
+
+- name: "{{ service_name }} - Run monitoring rrd-init if present"
+  ansible.builtin.command:
+    cmd: "{{ services_base_path }}/{{ service_name }}/monitoring/rrd-init.sh"
+  when: monitoring_dir.stat.exists and monitoring_templates.files | default([]) | selectattr('path', 'search', 'rrd-init') | list | length > 0
+  register: rrd_init_result
+  changed_when: "'CREATED' in rrd_init_result.stdout"
+  tags:
+    - services
