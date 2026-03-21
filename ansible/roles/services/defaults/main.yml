@@ -3,6 +3,7 @@ puid: "1000"
 pgid: "1000"
 
 services_base_path: "{{ paths.config }}"
+services_path: "{{ playbook_dir }}/../services"
 docker_pull_policy: "missing"
 
 # VAAPI driver

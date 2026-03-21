@@ -1,38 +1,8 @@
 ---
-- name: DiscoveryLastFM - directory setup
-  ansible.builtin.include_tasks: discoverylastfm.yml
-  when: "'discoverylastfm' in enabled_services"
-  tags:
-    - services
-
-- name: slskd - directory setup
-  ansible.builtin.include_tasks: slskd.yml
-  when: "'slskd' in enabled_services"
-  tags:
-    - services
-
-- name: Home Assistant - mosquitto password setup
-  ansible.builtin.include_tasks: homeassistant.yml
-  when: "'homeassistant' in enabled_services"
-  tags:
-    - services
-
 - name: Deploy services
   ansible.builtin.include_tasks: deploy.yml
-  loop: "{{ enabled_services }}"
+  loop: "{{ enabled_services | intersect(deploy_services.split(',')) if deploy_services is defined else enabled_services }}"
   loop_control:
     loop_var: service_name
-  tags:
-    - services
-
-- name: Navidrome - AudioMuse-AI plugin setup
-  ansible.builtin.include_tasks: navidrome.yml
-  when: "'navidrome' in enabled_services"
-  tags:
-    - services
-
-- name: Home Assistant - Frigate integration setup
-  ansible.builtin.include_tasks: homeassistant-post.yml
-  when: "'homeassistant' in enabled_services"
   tags:
     - services

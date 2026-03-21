@@ -68,4 +68,34 @@ cameras:
       threshold: 30
       contour_area: 20
       improve_contrast: true
-version: 0.16-0
+    zones:
+      pasillo_interno:
+        coordinates: 0.553,0.533,0.494,0.539,0.494,0.439,0.529,0.443
+        loitering_time: 0
+        friendly_name: Pasillo Interno
+      baranda_vecino:
+        coordinates: 0.665,0.233,1,0.292,1,0.073,0.655,0.009
+        loitering_time: 0
+        friendly_name: Baranda Vecino
+      zone_aca48c5b:
+        coordinates:
+          0.774,1,0.557,0.529,0.544,0.42,0.483,0.408,0.469,0.005,0.656,0,0.665,0.233,1,0.292,1,1
+        loitering_time: 0
+        friendly_name: Techo/Medianera
+        inertia: 3
+      afuera:
+        coordinates:
+          0.559,0.537,0.494,0.542,0.492,0.888,0.067,0.86,0,0.722,0,1,0.772,1
+        loitering_time: 0
+        friendly_name: Afuera
+version: 0.17-0
+classification:
+  custom:
+    Personas:
+      enabled: true
+      name: Personas
+      threshold: 0.8
+      object_config:
+        objects:
+          - person
+        classification_type: sub_label
