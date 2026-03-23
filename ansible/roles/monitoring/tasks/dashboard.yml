@@ -33,17 +33,13 @@
 
 - name: Build dashboard service configs
   ansible.builtin.set_fact:
-    dashboard_service_configs: >-
-      [{% for result in dashboard_slurped.results %}
-        {% set config = result.content | b64decode | from_yaml %}
-        {% set service = result.source | regex_replace('.*/services/([^/]+)/.*', '\\1') %}
-        {
-          "service": "{{ service }}",
-          "title": "{{ config.title }}",
-          "rrd_file": "{{ service }}.rrd",
-          "graphs": {{ config.graphs | to_json }}
-        }{{ "," if not loop.last else "" }}
-      {% endfor %}]
+    dashboard_service_configs: "{{ dashboard_service_configs | default([]) + [{'service': service, 'title': config.title, 'rrd_file': service + '.rrd', 'graphs': config.graphs}] }}"
+  loop: "{{ dashboard_slurped.results }}"
+  loop_control:
+    label: "{{ item.source | regex_replace('.*/services/([^/]+)/.*', '\\1') }}"
+  vars:
+    config: "{{ item.content | b64decode | from_yaml }}"
+    service: "{{ item.source | regex_replace('.*/services/([^/]+)/.*', '\\1') }}"
   when: dashboard_slurped.results | length > 0
 
 - name: Set empty dashboard configs if no fragments found

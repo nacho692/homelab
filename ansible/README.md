@@ -5,7 +5,7 @@
 | Host | Group | IP | OS |
 |------|-------|-----|-----|
 | nas | deb | 10.0.0.2 | Debian |
-| transcoder | nixos | 10.0.0.120 | NixOS |
+| transcoder | nixos | 10.0.0.11 | NixOS |
 
 ## Project Structure
 

@@ -19,6 +19,12 @@
   # Enable networking
   networking.networkmanager.enable = true;
 
+  networking.interfaces.enp2s0.ipv4.addresses = [{
+    address = "10.0.0.11";
+    prefixLength = 24;
+  }];
+  networking.defaultGateway = "10.0.0.1";
+
   # Set your time zone.
   time.timeZone = "America/Argentina/Buenos_Aires";
 
@@ -62,13 +68,19 @@
   fileSystems."/mnt/raid" = {
     device = "10.0.0.2:/mnt/raid";
     fsType = "nfs";
-    options = [ "nfsvers=4" "_netdev" ];
+    options = [ "nfsvers=4" "_netdev" "x-systemd.automount" "x-systemd.mount-timeout=30" ];
   };
 
   fileSystems."/media/data" = {
     device = "10.0.0.2:/media/data";
     fsType = "nfs";
-    options = [ "nfsvers=4" "_netdev" ];
+    options = [ "nfsvers=4" "_netdev" "x-systemd.automount" "x-systemd.mount-timeout=30" ];
+  };
+
+  # Ensure Docker starts only after NFS mounts are available
+  systemd.services.docker = {
+    after = [ "mnt-raid.mount" "media-data.mount" ];
+    requires = [ "mnt-raid.mount" "media-data.mount" ];
   };
 
   users.users.skynet = {

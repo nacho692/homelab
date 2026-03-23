@@ -1,10 +1,10 @@
 frigate.{{ internal_domain }} {
-    reverse_proxy 10.0.0.120:8971
+    reverse_proxy transcoder.host:8971
     tls internal
 }
 
 audiomuse.{{ internal_domain }} {
-    reverse_proxy 10.0.0.120:8000
+    reverse_proxy transcoder.host:8000
     tls internal
 }
 
