@@ -90,6 +90,9 @@
   systemd.services."getty@tty1".enable = false;
   systemd.services."autovt@tty1".enable = false;
 
+  # Disable firewall
+  networking.firewall.enable = false;
+
   # Tailscale
   services.tailscale.enable = true;
   services.tailscale.useRoutingFeatures = "client";
@@ -102,6 +105,9 @@
 
   # Install firefox.
   programs.firefox.enable = true;
+
+  # Steam
+  programs.steam.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;

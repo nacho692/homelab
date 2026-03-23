@@ -17,6 +17,8 @@ let
     nativeBuildInputs = [ pkgs.pkg-config ];
     buildInputs = [ pkgs.gtk3 ];
 
+    doCheck = false;
+
     buildPhase = ''
       runHook preBuild
       go build -buildmode=c-shared -o waybar-niri-windows.so ./main
@@ -36,6 +38,36 @@ in
     source = "${waybar-niri-windows}/lib/waybar-niri-windows.so";
     force = true;
   };
+
+  xdg.configFile."waybar/niri/config".source = ./waybar/niri/config;
+  xdg.configFile."waybar/niri/style.css".source = ./waybar/niri/style.css;
+
+  xdg.configFile."fuzzel/fuzzel.ini".text = lib.concatStringsSep "\n" [
+    "[main]"
+    "font=FiraCode Nerd Font Mono:size=11"
+    "prompt=   "
+    "icon-theme=Adwaita"
+    "width=45"
+    "lines=12"
+    "horizontal-pad=16"
+    "vertical-pad=12"
+    "inner-pad=8"
+    "line-height=24"
+    "layer=overlay"
+    ""
+    "[colors]"
+    "background=282828ee"
+    "text=ebdbb2ff"
+    "match=fabd2fff"
+    "selection=504945ff"
+    "selection-text=ebdbb2ff"
+    "selection-match=fabd2fff"
+    "border=d79921ff"
+    ""
+    "[border]"
+    "width=2"
+    "radius=8"
+  ];
 
   home.pointerCursor = {
     name = "Adwaita";
@@ -84,7 +116,7 @@ in
     }
 
     spawn-at-startup "swaync"
-    spawn-at-startup "waybar" "-c" "${builtins.toString ./waybar/niri/config}" "-s" "${builtins.toString ./waybar/niri/style.css}"
+    spawn-at-startup "waybar" "-c" "$HOME/.config/waybar/niri/config" "-s" "$HOME/.config/waybar/niri/style.css"
     spawn-at-startup "swww-daemon"
     spawn-at-startup "sh" "-c" "sleep 1 && swww img \"$(find $HOME/Pictures/wallpapers -type f | shuf -n 1)\" --transition-type fade --transition-duration 2 && while true; do sleep 1800; swww img \"$(find $HOME/Pictures/wallpapers -type f | shuf -n 1)\" --transition-type fade --transition-duration 2; done"
     spawn-at-startup "wl-clip-persist"
@@ -95,7 +127,6 @@ in
     spawn-at-startup "firefox"
     spawn-at-startup "kitty"
     spawn-at-startup "telegram-desktop"
-    spawn-at-startup "slack" "--ozone-platform=wayland" "--enable-features=UseOzonePlatform,WaylandWindowDecorations"
 
     window-rule {
       shadow {
@@ -116,11 +147,6 @@ in
 
     window-rule {
       match app-id="org.telegram.desktop"
-      open-on-workspace "comms"
-    }
-
-    window-rule {
-      match at-startup=true app-id="Slack"
       open-on-workspace "comms"
     }
 
@@ -153,7 +179,7 @@ in
       // App launchers
       Mod+Return { spawn "kitty"; }
       Mod+E { spawn "nautilus"; }
-      Mod+Z { spawn "walker"; }
+      Mod+Z { spawn "fuzzel"; }
 
       // Window switching
       Alt+Tab { focus-column-right-or-first; }
@@ -165,6 +191,7 @@ in
       // Window management
       Mod+Q { close-window; }
       Mod+M { quit; }
+      Mod+B { toggle-window-floating; }
       Mod+F { fullscreen-window; }
       Mod+W { consume-or-expel-window-left; }
       Mod+S { consume-or-expel-window-right; }

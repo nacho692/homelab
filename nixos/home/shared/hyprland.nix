@@ -60,7 +60,7 @@
       "$fileManager" = "nautilus";
       "$menu" = "walker";
       "$mainMod" = "SUPER";
-      "$code" = "cursor";
+      "$code" = "codium";
       "$browser" = "firefox";
       "$editor" = "gnome-text-editor";
 
@@ -102,7 +102,6 @@
 
         "[workspace special:terminal] kitty"
         "[workspace special:comms] telegram-desktop"
-        "[workspace special:comms] slack"
       ];
 
       animation = [
