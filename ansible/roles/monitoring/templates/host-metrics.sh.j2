@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source "{{ monitoring_base_path }}/alert-helper.sh"
 source "{{ monitoring_base_path }}/influx-write-helper.sh"
 
 # CPU usage (percentage, from /proc/stat delta over 1 second)
@@ -24,9 +23,6 @@ fi
 read -r mem_total mem_avail < <(awk '/MemTotal/{t=$2} /MemAvailable/{a=$2} END{print t, a}' /proc/meminfo)
 ram_pct=$(awk "BEGIN {printf \"%.1f\", 100 * (1 - ${mem_avail}/${mem_total})}")
 
-# Disk usage (root filesystem percentage)
-disk_pct=$(df / | awk 'NR==2 {gsub(/%/,""); print $5}')
-
 # Load averages
 read -r load1 load5 load15 _ < /proc/loadavg
 
@@ -38,15 +34,12 @@ else
     temp="U"
 fi
 
-write_influx "host,hostname={{ inventory_hostname }} cpu=${cpu_pct},ram=${ram_pct},disk=${disk_pct},load1=${load1},load5=${load5},load15=${load15},temp=${temp}"
+write_influx "host,hostname={{ inventory_hostname }} cpu=${cpu_pct},ram=${ram_pct},load1=${load1},load5=${load5},load15=${load15},temp=${temp}"
 
-# --- Threshold checks ---
-if (( $(echo "$cpu_pct > 90" | bc -l) )); then
-    alert_ha "High CPU" "CPU at ${cpu_pct}% on {{ inventory_hostname }}"
+# Disk usage (per-mount)
+{% for disk in monitoring_disk_mounts | default([{'mount': '/', 'label': 'root'}]) %}
+disk_pct_{{ loop.index }}=$(df {{ disk.mount }} 2>/dev/null | awk 'NR==2 {gsub(/%/,""); print $5}' || echo "U")
+if [ "${disk_pct_{{ loop.index }}}" != "U" ]; then
+    write_influx "disk_usage,hostname={{ inventory_hostname }},mount={{ disk.label }} pct=${disk_pct_{{ loop.index }}}"
 fi
-if (( $(echo "$ram_pct > 90" | bc -l) )); then
-    alert_ha "High RAM" "RAM at ${ram_pct}% on {{ inventory_hostname }}"
-fi
-if (( disk_pct > 90 )); then
-    alert_ha "Disk Full" "Root disk at ${disk_pct}% on {{ inventory_hostname }}"
-fi
+{% endfor %}

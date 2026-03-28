@@ -33,4 +33,4 @@ else
     gravity_size="U"
 fi
 
-write_influx "pihole,hostname={{ inventory_hostname }} latency_ms=${latency_ms},queries_total=${queries_total},queries_blocked=${queries_blocked},blocking_pct=${blocking_pct},gravity_size=${gravity_size}"
+write_influx "pihole latency_ms=${latency_ms},queries_total=${queries_total},queries_blocked=${queries_blocked},blocking_pct=${blocking_pct},gravity_size=${gravity_size}"

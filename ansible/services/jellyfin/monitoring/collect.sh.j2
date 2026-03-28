@@ -17,4 +17,4 @@ sessions_json=$(curl -sf "${JELLYFIN_URL}/Sessions?api_key={{ vault_jellyfin_api
 active_streams=$(echo "$sessions_json" | jq '[.[] | select(.NowPlayingItem != null)] | length' 2>/dev/null || echo "U")
 transcoding_streams=$(echo "$sessions_json" | jq '[.[] | select(.TranscodingInfo != null)] | length' 2>/dev/null || echo "U")
 
-write_influx "jellyfin,hostname={{ inventory_hostname }} latency_ms=${latency_ms},active_streams=${active_streams},transcoding_streams=${transcoding_streams}"
+write_influx "jellyfin latency_ms=${latency_ms},active_streams=${active_streams},transcoding_streams=${transcoding_streams}"

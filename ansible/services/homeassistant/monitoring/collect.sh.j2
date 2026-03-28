@@ -14,4 +14,4 @@ else
     latency_ms="U"
 fi
 
-write_influx "homeassistant,hostname={{ inventory_hostname }} latency_ms=${latency_ms}"
+write_influx "homeassistant latency_ms=${latency_ms}"
