@@ -121,6 +121,7 @@
     after = [ "network-online.target" "mnt-raid.mount" ];
     wants = [ "network-online.target" ];
     requires = [ "mnt-raid.mount" ];
+    path = with pkgs; [ bash coreutils gawk bc curl jq smartmontools procps ];
     serviceConfig = {
       Type = "oneshot";
       ExecStart = "/opt/monitoring/run-all.sh";
