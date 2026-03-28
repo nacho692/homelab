@@ -15,3 +15,10 @@ docker_networks:
 render_group: "303"
 gpu_device: "/dev/dri/renderD128"
 libva_driver_name: "iHD"
+
+# Monitoring
+monitoring_host_custom_templates:
+  - { src: smartctl-collect.sh.j2, dest: host/collect-smartctl.sh }
+
+smartctl_devices:
+  - /dev/sda

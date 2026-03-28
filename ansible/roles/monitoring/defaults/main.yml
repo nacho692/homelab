@@ -1,6 +1,6 @@
 ---
-monitoring_base_path: "{{ services_base_path }}/monitoring"
-monitoring_metrics_path: "{{ paths.raid }}/monitoring/metrics"
+monitoring_base_path: /opt/monitoring
+monitoring_metrics_path: /opt/monitoring/metrics
 
 monitoring_influxdb_url: "https://influxdb.{{ internal_domain }}"
 monitoring_influxdb_database: homelab
@@ -11,3 +11,6 @@ monitoring_host_custom_templates: []
 # HA alerting
 monitoring_ha_url: "http://{{ nas_ip }}:{{ service_ports.homeassistant }}"
 monitoring_ha_token: "{{ vault_ha_api_token }}"
+
+monitoring_disk_mounts:
+  - { mount: "/", label: "root" }

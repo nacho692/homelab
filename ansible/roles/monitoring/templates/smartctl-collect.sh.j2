@@ -1,28 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source "{{ monitoring_base_path }}/alert-helper.sh"
 source "{{ monitoring_base_path }}/influx-write-helper.sh"
 
-{% for device in scrutiny_devices %}
+{% for device in smartctl_devices %}
 {% set dev_short = device | regex_replace('/dev/', '') %}
 smart_json_{{ dev_short }}=$(smartctl -a -j {{ device }} 2>/dev/null || echo '{}')
-temp_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -s -r 'first.temperature.current // "U"')
-realloc_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -s -r '[first.ata_smart_attributes.table[] | select(.id == 5) | .raw.value] | first // 0' 2>/dev/null || echo "0")
+temp_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '.temperature.current // "U"')
+serial_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '.serial_number // "unknown"')
+realloc_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '[.ata_smart_attributes.table[] | select(.id == 5) | .raw.value] | first // 0' 2>/dev/null || echo "0")
+pending_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '[.ata_smart_attributes.table[] | select(.id == 197) | .raw.value] | first // 0' 2>/dev/null || echo "0")
+offline_uncorrectable_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '[.ata_smart_attributes.table[] | select(.id == 198) | .raw.value] | first // 0' 2>/dev/null || echo "0")
+crc_errors_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '[.ata_smart_attributes.table[] | select(.id == 199) | .raw.value] | first // 0' 2>/dev/null || echo "0")
+power_hours_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '[.ata_smart_attributes.table[] | select(.id == 9) | .raw.value] | first // 0' 2>/dev/null || echo "0")
+smart_passed_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r 'if .smart_status.passed then 1 elif .smart_status.passed == false then 0 else "U" end')
 {% endfor %}
 
-{% for device in scrutiny_devices %}
+{% for device in smartctl_devices %}
 {% set dev_short = device | regex_replace('/dev/', '') %}
-write_influx "smartctl,hostname={{ inventory_hostname }},device={{ dev_short }} temp=${temp_{{ dev_short }}},realloc=${realloc_{{ dev_short }}}"
-{% endfor %}
-
-# Alert on high disk temps or reallocated sectors
-{% for device in scrutiny_devices %}
-{% set dev_short = device | regex_replace('/dev/', '') %}
-if [ "${temp_{{ dev_short }}}" != "U" ] && (( $(echo "${temp_{{ dev_short }}} > 50" | bc -l) )); then
-    alert_ha "Disk Hot" "{{ device }} at ${temp_{{ dev_short }}}°C on {{ inventory_hostname }}"
-fi
-if [ "${realloc_{{ dev_short }}}" != "0" ] && (( realloc_{{ dev_short }} > 0 )); then
-    alert_ha "Disk Health" "{{ device }} has ${realloc_{{ dev_short }}} reallocated sectors on {{ inventory_hostname }}"
-fi
+write_influx "smartctl,hostname={{ inventory_hostname }},device={{ dev_short }},serial=${serial_{{ dev_short }}} temp=${temp_{{ dev_short }}},realloc=${realloc_{{ dev_short }}},pending=${pending_{{ dev_short }}},offline_uncorrectable=${offline_uncorrectable_{{ dev_short }}},crc_errors=${crc_errors_{{ dev_short }}},power_hours=${power_hours_{{ dev_short }}},smart_passed=${smart_passed_{{ dev_short }}}"
 {% endfor %}

@@ -2,7 +2,7 @@
 set -uo pipefail
 
 BASE="{{ monitoring_base_path }}"
-SERVICES_BASE="{{ services_base_path }}"
+SERVICES_BASE="{{ monitoring_base_path }}/services"
 LOG_FILE="/var/log/monitoring.log"
 
 log() { echo "$(date -Iseconds) $*" >> "$LOG_FILE"; }
@@ -21,9 +21,9 @@ for custom_script in "${BASE}/host/collect-"*.sh; do
 done
 
 # --- Per-service metrics ---
-for service_dir in "${SERVICES_BASE}"/*/monitoring; do
+for service_dir in "${SERVICES_BASE}"/*/; do
     [ -d "$service_dir" ] || continue
-    service_name=$(basename "$(dirname "$service_dir")")
+    service_name=$(basename "$service_dir")
 
     if [ -x "${service_dir}/collect.sh" ]; then
         log "Collecting metrics for ${service_name}"

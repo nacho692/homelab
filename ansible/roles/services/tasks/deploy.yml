@@ -157,7 +157,7 @@
 
 - name: "{{ service_name }} - Ensure monitoring directory exists on target"
   ansible.builtin.file:
-    path: "{{ services_base_path }}/{{ service_name }}/monitoring"
+    path: "{{ monitoring_base_path }}/services/{{ service_name }}"
     state: directory
     owner: root
     group: root
@@ -181,7 +181,7 @@
 - name: "{{ service_name }} - Template monitoring scripts"
   ansible.builtin.template:
     src: "{{ item.path }}"
-    dest: "{{ services_base_path }}/{{ service_name }}/monitoring/{{ item.path | basename | regex_replace('\\.j2$', '') }}"
+    dest: "{{ monitoring_base_path }}/services/{{ service_name }}/{{ item.path | basename | regex_replace('\\.j2$', '') }}"
     owner: root
     group: root
     mode: "0755"
@@ -208,7 +208,7 @@
 - name: "{{ service_name }} - Copy monitoring static files"
   ansible.builtin.copy:
     src: "{{ item.path }}"
-    dest: "{{ services_base_path }}/{{ service_name }}/monitoring/{{ item.path | basename }}"
+    dest: "{{ monitoring_base_path }}/services/{{ service_name }}/{{ item.path | basename }}"
     owner: root
     group: root
     mode: "0644"
@@ -221,7 +221,7 @@
 
 - name: "{{ service_name }} - Run monitoring rrd-init if present"
   ansible.builtin.command:
-    cmd: "{{ services_base_path }}/{{ service_name }}/monitoring/rrd-init.sh"
+    cmd: "{{ monitoring_base_path }}/services/{{ service_name }}/rrd-init.sh"
   when: monitoring_dir.stat.exists and monitoring_templates.files | default([]) | selectattr('path', 'search', 'rrd-init') | list | length > 0
   register: rrd_init_result
   changed_when: "'CREATED' in rrd_init_result.stdout"

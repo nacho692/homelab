@@ -61,12 +61,21 @@ render_group: "110"
 gpu_device: "/dev/dri/renderD128"
 
 # Scrutiny disk devices
-scrutiny_devices:
+smartctl_devices:
   - /dev/sda
   - /dev/sdb
   - /dev/sdc
   - /dev/sdd
   - /dev/sde
+  - /dev/sdf
+  - /dev/sdg
+  - /dev/sdh
+
+monitoring_disk_mounts:
+  - { mount: "/", label: "root" }
+  - { mount: "/home", label: "home" }
+  - { mount: "/mnt/raid", label: "raid" }
+  - { mount: "/media/data", label: "data" }
 
 # Monitoring
 monitoring_host_custom_templates:

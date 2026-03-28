@@ -40,6 +40,8 @@
       failed_when: network_result.rc != 0 and 'already exists' not in network_result.stderr
   roles:
     - services
+    - role: monitoring
+      tags: [services, monitoring]
   tags:
     - services
 

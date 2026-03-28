@@ -109,7 +109,34 @@
     git
     dnsutils
     python3
+    bc
+    curl
+    jq
+    smartmontools
   ];
+
+  # Monitoring collection timer
+  systemd.services.monitoring = {
+    description = "Homelab monitoring collection";
+    after = [ "network-online.target" "mnt-raid.mount" ];
+    wants = [ "network-online.target" ];
+    requires = [ "mnt-raid.mount" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "/opt/monitoring/run-all.sh";
+      Nice = 19;
+      IOSchedulingClass = "idle";
+    };
+  };
+
+  systemd.timers.monitoring = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "*:0/5";
+      RandomizedDelaySec = 30;
+      Persistent = true;
+    };
+  };
 
   # For non nixOS binaries (e.g: uv python installs)
   programs.nix-ld.enable = true;
