@@ -115,6 +115,15 @@
     smartmontools
   ];
 
+  # SMART self-tests
+  services.smartd = {
+    enable = true;
+    devices = [
+      { device = "/dev/sda"; options = "-a -s (S/../../7/02|L/../../1/03)"; }
+    ];
+    notifications.mail.enable = false;
+  };
+
   # Monitoring collection timer
   systemd.services.monitoring = {
     description = "Homelab monitoring collection";
