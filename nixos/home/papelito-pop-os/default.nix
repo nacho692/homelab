@@ -75,6 +75,10 @@ in
   ];
 
   home.file.".config/kitty/kitty.conf".source = ../shared/kitty/kitty.conf;
+  home.file.".local/bin/new-kitty-window" = {
+    source = ../shared/kitty/new-kitty-window.sh;
+    executable = true;
+  };
   home.file.".config/environment.d/90-nix-profile.conf".text = ''
     PATH=${config.home.profileDirectory}/bin:$PATH
     XDG_DATA_DIRS=${config.home.profileDirectory}/share:$XDG_DATA_DIRS
