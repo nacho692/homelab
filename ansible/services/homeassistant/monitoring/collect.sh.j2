@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-RRD_FILE="{{ monitoring_metrics_path }}/{{ inventory_hostname }}/homeassistant.rrd"
+source "{{ monitoring_base_path }}/influx-write-helper.sh"
 HA_URL="http://localhost:{{ service_ports.homeassistant }}"
 
 # Response latency
@@ -14,4 +14,4 @@ else
     latency_ms="U"
 fi
 
-rrdtool update "$RRD_FILE" "N:${latency_ms}"
+write_influx "homeassistant,hostname={{ inventory_hostname }} latency_ms=${latency_ms}"

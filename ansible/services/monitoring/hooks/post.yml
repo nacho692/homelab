@@ -1,0 +1,9 @@
+---
+- name: Wait for InfluxDB to be ready
+  ansible.builtin.uri:
+    url: "http://localhost:{{ service_ports.influxdb }}/health"
+    return_content: true
+  register: influxdb_health
+  retries: 10
+  delay: 3
+  until: influxdb_health.status == 200

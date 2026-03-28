@@ -1,0 +1,41 @@
+services:
+  influxdb:
+    image: influxdb:2
+    container_name: influxdb
+    restart: unless-stopped
+    ports:
+      - "{{ service_ports.influxdb }}:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_ADMIN_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=homelab
+      - DOCKER_INFLUXDB_INIT_BUCKET=homelab
+      - DOCKER_INFLUXDB_INIT_RETENTION=365d
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN}
+    volumes:
+      - {{ paths.config }}/monitoring/influxdb/data:/var/lib/influxdb2
+      - {{ paths.config }}/monitoring/influxdb/config:/etc/influxdb2
+    networks:
+      - internal
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    user: "{{ puid }}:{{ pgid }}"
+    ports:
+      - "{{ service_ports.grafana }}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+    volumes:
+      - {{ paths.config }}/monitoring/grafana/data:/var/lib/grafana
+      - {{ paths.config }}/monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - influxdb
+    networks:
+      - internal
+
+networks:
+  internal:
+    external: true

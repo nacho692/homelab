@@ -21,8 +21,8 @@
   loop:
     - { src: run-all.sh.j2, dest: run-all.sh }
     - { src: alert-helper.sh.j2, dest: alert-helper.sh }
+    - { src: influx-write-helper.sh.j2, dest: influx-write-helper.sh }
     - { src: host-metrics.sh.j2, dest: host/collect.sh }
-    - { src: rrd-init-host.sh.j2, dest: host/rrd-init.sh }
 
 - name: Template custom host-level monitoring scripts
   ansible.builtin.template:

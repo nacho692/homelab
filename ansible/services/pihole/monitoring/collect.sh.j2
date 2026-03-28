@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-RRD_FILE="{{ monitoring_metrics_path }}/{{ inventory_hostname }}/pihole.rrd"
+source "{{ monitoring_base_path }}/influx-write-helper.sh"
 PIHOLE_URL="http://localhost:{{ service_ports.pihole_web }}"
 
 # Response latency
@@ -33,4 +33,4 @@ else
     gravity_size="U"
 fi
 
-rrdtool update "$RRD_FILE" "N:${latency_ms}:${queries_total}:${queries_blocked}:${blocking_pct}:${gravity_size}"
+write_influx "pihole,hostname={{ inventory_hostname }} latency_ms=${latency_ms},queries_total=${queries_total},queries_blocked=${queries_blocked},blocking_pct=${blocking_pct},gravity_size=${gravity_size}"

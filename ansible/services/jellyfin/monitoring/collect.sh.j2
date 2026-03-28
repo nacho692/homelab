@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-RRD_FILE="{{ monitoring_metrics_path }}/{{ inventory_hostname }}/jellyfin.rrd"
+source "{{ monitoring_base_path }}/influx-write-helper.sh"
 JELLYFIN_URL="http://localhost:{{ service_ports.jellyfin }}"
 
 # Response latency
@@ -17,4 +17,4 @@ sessions_json=$(curl -sf "${JELLYFIN_URL}/Sessions?api_key={{ vault_jellyfin_api
 active_streams=$(echo "$sessions_json" | jq '[.[] | select(.NowPlayingItem != null)] | length' 2>/dev/null || echo "U")
 transcoding_streams=$(echo "$sessions_json" | jq '[.[] | select(.TranscodingInfo != null)] | length' 2>/dev/null || echo "U")
 
-rrdtool update "$RRD_FILE" "N:${latency_ms}:${active_streams}:${transcoding_streams}"
+write_influx "jellyfin,hostname={{ inventory_hostname }} latency_ms=${latency_ms},active_streams=${active_streams},transcoding_streams=${transcoding_streams}"

@@ -1,5 +1,0 @@
-title: Home Assistant
-graphs:
-  - title: "Response Latency"
-    ds: ["latency_ms"]
-    units: "ms"

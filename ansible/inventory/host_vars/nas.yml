@@ -54,7 +54,7 @@ enabled_services:
   - homeassistant
 
   # Monitoring
-  - ilias
+  - monitoring
 
 # GPU
 render_group: "110"
@@ -69,10 +69,8 @@ scrutiny_devices:
   - /dev/sde
 
 # Monitoring
-monitoring_dashboard_enabled: true
 monitoring_host_custom_templates:
   - { src: smartctl-collect.sh.j2, dest: host/collect-smartctl.sh }
-  - { src: smartctl-rrd-init.sh.j2, dest: host/rrd-init-smartctl.sh }
 
 # Tailscale
 tailscale_hostname: "media-pacheco"

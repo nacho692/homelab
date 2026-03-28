@@ -6,13 +6,6 @@
 - name: Deploy monitoring scripts
   ansible.builtin.include_tasks: scripts.yml
 
-- name: Initialize RRD databases
-  ansible.builtin.include_tasks: rrd-init.yml
-
 - name: Configure systemd timer (Debian)
   ansible.builtin.include_tasks: systemd.yml
   when: ansible_os_family == "Debian"
-
-- name: Deploy dashboard generation
-  ansible.builtin.include_tasks: dashboard.yml
-  when: monitoring_dashboard_enabled

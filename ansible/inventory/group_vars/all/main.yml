@@ -58,6 +58,8 @@ service_ports:
   homeassistant: 8123
   mosquitto: 1883
   ilias: 8082
+  influxdb: 8181
+  grafana: 3000
 
 # Home Assistant
 frigate_hass_integration_version: "v5.14.2"

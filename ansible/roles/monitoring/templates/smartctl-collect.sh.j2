@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-RRD_FILE="{{ monitoring_metrics_path }}/{{ inventory_hostname }}/smartctl.rrd"
 source "{{ monitoring_base_path }}/alert-helper.sh"
+source "{{ monitoring_base_path }}/influx-write-helper.sh"
 
 {% for device in scrutiny_devices %}
 {% set dev_short = device | regex_replace('/dev/', '') %}
@@ -11,8 +11,10 @@ temp_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -s -r 'first.temp
 realloc_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -s -r '[first.ata_smart_attributes.table[] | select(.id == 5) | .raw.value] | first // 0' 2>/dev/null || echo "0")
 {% endfor %}
 
-rrdtool update "$RRD_FILE" \
-    "N{% for device in scrutiny_devices %}{% set dev_short = device | regex_replace('/dev/', '') %}:${temp_{{ dev_short }}}:${realloc_{{ dev_short }}}{% endfor %}"
+{% for device in scrutiny_devices %}
+{% set dev_short = device | regex_replace('/dev/', '') %}
+write_influx "smartctl,hostname={{ inventory_hostname }},device={{ dev_short }} temp=${temp_{{ dev_short }}},realloc=${realloc_{{ dev_short }}}"
+{% endfor %}
 
 # Alert on high disk temps or reallocated sectors
 {% for device in scrutiny_devices %}

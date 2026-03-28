@@ -16,3 +16,13 @@ homeassistant.{{ internal_domain }} {
 homeassistant.{{ domain }} {
     reverse_proxy {{ nas_ip }}:{{ service_ports.homeassistant }}
 }
+
+grafana.{{ internal_domain }} {
+    reverse_proxy {{ nas_ip }}:{{ service_ports.grafana }}
+    tls internal
+}
+
+influxdb.{{ internal_domain }} {
+    reverse_proxy {{ nas_ip }}:{{ service_ports.influxdb }}
+    tls internal
+}

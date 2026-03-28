@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Shared helper for writing metrics to InfluxDB
+
+write_influx() {
+    curl -sk -XPOST "{{ monitoring_influxdb_url }}/api/v2/write?org=homelab&bucket={{ monitoring_influxdb_database }}&precision=s" \
+        --header "Authorization: Token {{ monitoring_influxdb_token }}" \
+        --data-raw "$1" || true
+}

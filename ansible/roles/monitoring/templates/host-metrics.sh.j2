@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-RRD_FILE="{{ monitoring_metrics_path }}/{{ inventory_hostname }}/host.rrd"
 source "{{ monitoring_base_path }}/alert-helper.sh"
+source "{{ monitoring_base_path }}/influx-write-helper.sh"
 
 # CPU usage (percentage, from /proc/stat delta over 1 second)
 read -r cpu_user cpu_nice cpu_sys cpu_idle cpu_iowait _ < <(
@@ -38,7 +38,7 @@ else
     temp="U"
 fi
 
-rrdtool update "$RRD_FILE" "N:${cpu_pct}:${ram_pct}:${disk_pct}:${load1}:${load5}:${load15}:${temp}"
+write_influx "host,hostname={{ inventory_hostname }} cpu=${cpu_pct},ram=${ram_pct},disk=${disk_pct},load1=${load1},load5=${load5},load15=${load15},temp=${temp}"
 
 # --- Threshold checks ---
 if (( $(echo "$cpu_pct > 90" | bc -l) )); then

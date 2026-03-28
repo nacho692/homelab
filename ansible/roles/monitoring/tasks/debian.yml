@@ -1,8 +1,8 @@
 ---
-- name: Install rrdtool and dependencies
+- name: Install monitoring dependencies
   ansible.builtin.apt:
     name:
-      - rrdtool
       - bc
+      - curl
     state: present
     update_cache: true
