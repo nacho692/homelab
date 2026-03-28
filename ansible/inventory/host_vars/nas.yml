@@ -41,7 +41,6 @@ enabled_services:
   - immich
   # Admin
 
-  - scrutiny
   - jfa-go
   # Backup
   - borgmatic
