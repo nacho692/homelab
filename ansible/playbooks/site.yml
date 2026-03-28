@@ -10,6 +10,8 @@
   become: true
   roles:
     - git-setup
+  tags:
+    - nixos
 
 - name: Setup NixOS hosts
   hosts: nixos
