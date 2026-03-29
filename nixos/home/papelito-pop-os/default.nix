@@ -114,6 +114,7 @@ in
         upnpav = 1
         openhome = 1
         avtautoplay = 1
+        upnpport = 49152
         pkgdatadir = ${pkgs.upmpdcli}/share/upmpdcli
         mpdhost = 127.0.0.1
         mpdport = 6600
