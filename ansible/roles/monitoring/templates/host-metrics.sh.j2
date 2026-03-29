@@ -43,3 +43,44 @@ if [ "${disk_pct_{{ loop.index }}}" != "U" ]; then
     write_influx "disk_usage,hostname={{ inventory_hostname }},mount={{ disk.label }} pct=${disk_pct_{{ loop.index }}}"
 fi
 {% endfor %}
+
+# Network interface stats (host-level)
+for iface_path in /sys/class/net/*/statistics; do
+    iface=$(basename "$(dirname "$iface_path")")
+    # Skip virtual interfaces
+    case "$iface" in lo|veth*|br-*|docker*) continue ;; esac
+    rx_bytes=$(< "$iface_path/rx_bytes")
+    tx_bytes=$(< "$iface_path/tx_bytes")
+    rx_packets=$(< "$iface_path/rx_packets")
+    tx_packets=$(< "$iface_path/tx_packets")
+    rx_errors=$(< "$iface_path/rx_errors")
+    tx_errors=$(< "$iface_path/tx_errors")
+    rx_dropped=$(< "$iface_path/rx_dropped")
+    tx_dropped=$(< "$iface_path/tx_dropped")
+    write_influx "net,hostname={{ inventory_hostname }},iface=${iface} rx_bytes=${rx_bytes}i,tx_bytes=${tx_bytes}i,rx_packets=${rx_packets}i,tx_packets=${tx_packets}i,rx_errors=${rx_errors}i,tx_errors=${tx_errors}i,rx_dropped=${rx_dropped}i,tx_dropped=${tx_dropped}i"
+done
+
+# Docker container network stats (if docker is available)
+if command -v docker &>/dev/null; then
+    to_bytes() {
+        local val unit
+        val=$(echo "$1" | grep -oP '[0-9.]+')
+        unit=$(echo "$1" | grep -oP '[a-zA-Z]+')
+        case "$unit" in
+            B)  awk "BEGIN {printf \"%d\", ${val}}" ;;
+            kB) awk "BEGIN {printf \"%d\", ${val} * 1024}" ;;
+            MB) awk "BEGIN {printf \"%d\", ${val} * 1048576}" ;;
+            GB) awk "BEGIN {printf \"%d\", ${val} * 1073741824}" ;;
+            *)  echo "0" ;;
+        esac
+    }
+
+    docker stats --no-stream --format {% raw %}'{{.Name}} {{.NetIO}}'{% endraw %} 2>/dev/null | while read -r cname net_io; do
+        [ -z "$cname" ] && continue
+        rx_raw=$(echo "$net_io" | cut -d'/' -f1 | xargs)
+        tx_raw=$(echo "$net_io" | cut -d'/' -f2 | xargs)
+        rx_bytes=$(to_bytes "$rx_raw")
+        tx_bytes=$(to_bytes "$tx_raw")
+        write_influx "container_net,hostname={{ inventory_hostname }},container=${cname} rx_bytes=${rx_bytes}i,tx_bytes=${tx_bytes}i"
+    done
+fi
