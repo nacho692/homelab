@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+source "{{ monitoring_base_path }}/influx-write-helper.sh"
+
+# Response latency
+latency=$(curl -sf -o /dev/null -w "%{time_total}" "http://localhost:{{ service_ports.slskd }}" 2>/dev/null || echo "U")
+if [ "$latency" != "U" ]; then
+    latency_ms=$(awk "BEGIN {printf \"%.0f\", ${latency} * 1000}")
+else
+    latency_ms="U"
+fi
+
+write_influx "slskd latency_ms=${latency_ms}"
