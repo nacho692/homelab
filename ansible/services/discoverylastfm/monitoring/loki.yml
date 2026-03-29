@@ -1,0 +1,2 @@
+log_files:
+  - path: logs/daemon.log

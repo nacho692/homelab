@@ -1,0 +1,25 @@
+server:
+  http_listen_port: 9080
+
+positions:
+  filename: /etc/promtail/positions.yaml
+
+clients:
+  - url: http://loki:{{ service_ports.loki }}/loki/api/v1/push
+
+scrape_configs:
+{% set loki_files = lookup('pipe', 'find ' + (playbook_dir + '/../services') | realpath + ' -path "*/monitoring/loki.yml" -type f 2>/dev/null | sort').splitlines() %}
+{% for loki_file in loki_files %}
+{% if loki_file %}
+{% set svc = loki_file | regex_replace('.*/services/([^/]+)/monitoring/loki.yml', '\\1') %}
+{% set config = lookup('file', loki_file) | from_yaml %}
+{% for log in config.log_files %}
+  - job_name: {{ svc }}
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: {{ svc }}
+          __path__: {{ paths.config }}/{{ svc }}/{{ log.path }}
+{% endfor %}
+{% endif %}
+{% endfor %}

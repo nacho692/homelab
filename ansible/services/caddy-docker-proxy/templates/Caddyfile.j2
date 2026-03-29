@@ -26,3 +26,8 @@ influxdb.{{ internal_domain }} {
     reverse_proxy {{ nas_ip }}:{{ service_ports.influxdb }}
     tls internal
 }
+
+loki.{{ internal_domain }} {
+    reverse_proxy {{ nas_ip }}:{{ service_ports.loki }}
+    tls internal
+}

@@ -19,6 +19,20 @@ services:
     networks:
       - internal
 
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    restart: unless-stopped
+    user: "{{ puid }}:{{ pgid }}"
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "{{ service_ports.loki }}:3100"
+    volumes:
+      - {{ paths.config }}/monitoring/loki/data:/loki
+      - {{ paths.config }}/monitoring/loki/config:/etc/loki:ro
+    networks:
+      - internal
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -33,6 +47,7 @@ services:
       - {{ paths.config }}/monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
     depends_on:
       - influxdb
+      - loki
     networks:
       - internal
 

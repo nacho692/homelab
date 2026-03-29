@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+source "{{ monitoring_base_path }}/influx-write-helper.sh"
+
+# Get latest archive stats from borgmatic
+json=$(docker exec borgmatic borgmatic info --archive latest --json 2>/dev/null) || exit 0
+
+archive=$(echo "$json" | jq -r '.[0].archives[0]' 2>/dev/null) || exit 0
+[ "$archive" = "null" ] && exit 0
+
+duration=$(echo "$archive" | jq -r '.duration // empty')
+nfiles=$(echo "$archive" | jq -r '.stats.nfiles // empty')
+original_size=$(echo "$archive" | jq -r '.stats.original_size // empty')
+compressed_size=$(echo "$archive" | jq -r '.stats.compressed_size // empty')
+deduplicated_size=$(echo "$archive" | jq -r '.stats.deduplicated_size // empty')
+
+[ -z "$duration" ] && exit 0
+
+write_influx "borgmatic,hostname={{ inventory_hostname }} duration=${duration},nfiles=${nfiles}i,original_size=${original_size}i,compressed_size=${compressed_size}i,deduplicated_size=${deduplicated_size}i"

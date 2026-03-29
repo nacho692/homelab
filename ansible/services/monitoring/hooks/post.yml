@@ -7,3 +7,12 @@
   retries: 10
   delay: 3
   until: influxdb_health.status == 200
+
+- name: Wait for Loki to be ready
+  ansible.builtin.uri:
+    url: "http://localhost:{{ service_ports.loki }}/ready"
+    return_content: true
+  register: loki_health
+  retries: 10
+  delay: 3
+  until: loki_health.status == 200

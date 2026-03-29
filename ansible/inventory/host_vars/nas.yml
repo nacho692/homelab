@@ -54,6 +54,7 @@ enabled_services:
 
   # Monitoring
   - monitoring
+  - promtail
 
 # GPU
 render_group: "110"
