@@ -15,8 +15,7 @@ automation:
              and (trigger.payload_json.after.sub_label is none
                   or trigger.payload_json.after.sub_label | lower not in ['nora', 'ricardo']) {{ '}}' }}
     action:
-{% for service in ha_notify_services %}
-      - action: {{ service }}
+      - action: notify.mobile_app_nora_moto_g14
         data:
           title: "Unknown Person Detected"
           message: "An unrecognized person was detected on {{ '{{' }} trigger.payload_json.after.camera {{ '}}' }}"
@@ -25,4 +24,17 @@ automation:
             tag: "frigate-{{ '{{' }} trigger.payload_json.after.id {{ '}}' }}"
             group: "frigate-unknown-person"
             clickAction: "https://homeassistant.{{ domain }}/api/frigate/notifications/{{ '{{' }} trigger.payload_json.after.id {{ '}}' }}/clip.mp4"
-{% endfor %}
+      - if:
+          - condition: time
+            after: "21:00:00"
+            before: "07:00:00"
+        then:
+          - action: notify.mobile_app_sm_a528b
+            data:
+              title: "Unknown Person Detected"
+              message: "An unrecognized person was detected on {{ '{{' }} trigger.payload_json.after.camera {{ '}}' }}"
+              data:
+                image: "/api/frigate/notifications/{{ '{{' }} trigger.payload_json.after.id {{ '}}' }}/snapshot.jpg"
+                tag: "frigate-{{ '{{' }} trigger.payload_json.after.id {{ '}}' }}"
+                group: "frigate-unknown-person"
+                clickAction: "https://homeassistant.{{ domain }}/api/frigate/notifications/{{ '{{' }} trigger.payload_json.after.id {{ '}}' }}/clip.mp4"

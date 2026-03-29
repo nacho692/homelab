@@ -65,6 +65,7 @@ service_ports:
 frigate_hass_integration_version: "v5.14.2"
 remote_hass_integration_version: "4.6"
 ha_notify_services:
+  - notify.mobile_app_nora_moto_g14
   - notify.mobile_app_sm_a528b
 
 # Immich
