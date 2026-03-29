@@ -9,3 +9,7 @@
 - name: Configure systemd timer (Debian)
   ansible.builtin.include_tasks: systemd.yml
   when: ansible_os_family == "Debian"
+
+- name: Configure smartd self-tests (Debian)
+  ansible.builtin.include_tasks: smartd.yml
+  when: ansible_os_family == "Debian"

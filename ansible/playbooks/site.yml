@@ -12,6 +12,7 @@
     - git-setup
   tags:
     - nixos
+    - monitoring
 
 - name: Setup NixOS hosts
   hosts: nixos
@@ -29,6 +30,7 @@
       changed_when: false
   tags:
     - nixos
+    - monitoring
 
 - name: Deploy Transcoder
   hosts: transcoder

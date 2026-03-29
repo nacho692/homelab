@@ -1,0 +1,17 @@
+---
+- name: Deploy smartd configuration
+  ansible.builtin.template:
+    src: smartd.conf.j2
+    dest: /etc/smartd.conf
+    owner: root
+    group: root
+    mode: "0644"
+  when: smartctl_devices is defined
+  notify: Restart smartd
+
+- name: Enable and start smartd
+  ansible.builtin.systemd:
+    name: smartd
+    enabled: true
+    state: started
+  when: smartctl_devices is defined
