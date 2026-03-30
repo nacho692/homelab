@@ -44,6 +44,17 @@ if [ "${disk_pct_{{ loop.index }}}" != "U" ]; then
 fi
 {% endfor %}
 
+# Disk I/O stats (from /proc/diskstats)
+while read -r _ _ dev reads _ sectors_read _ writes _ sectors_written _; do
+    case "$dev" in
+        sd[a-z]|nvme[0-9]*n[0-9]) ;;  # keep whole disks only
+        *) continue ;;
+    esac
+    read_bytes=$(( sectors_read * 512 ))
+    write_bytes=$(( sectors_written * 512 ))
+    write_influx "disk_io,hostname={{ inventory_hostname }},device=${dev} read_bytes=${read_bytes}i,write_bytes=${write_bytes}i,read_ops=${reads}i,write_ops=${writes}i"
+done < /proc/diskstats
+
 # Network interface stats (host-level)
 for iface_path in /sys/class/net/*/statistics; do
     iface=$(basename "$(dirname "$iface_path")")
@@ -61,26 +72,18 @@ for iface_path in /sys/class/net/*/statistics; do
 done
 
 # Docker container network stats (if docker is available)
+# Reads exact byte counters from each container's network namespace via /proc/<pid>/net/dev
 if command -v docker &>/dev/null; then
-    to_bytes() {
-        local val unit
-        val=$(echo "$1" | grep -oP '[0-9.]+')
-        unit=$(echo "$1" | grep -oP '[a-zA-Z]+')
-        case "$unit" in
-            B)  awk "BEGIN {printf \"%d\", ${val}}" ;;
-            kB) awk "BEGIN {printf \"%d\", ${val} * 1024}" ;;
-            MB) awk "BEGIN {printf \"%d\", ${val} * 1048576}" ;;
-            GB) awk "BEGIN {printf \"%d\", ${val} * 1073741824}" ;;
-            *)  echo "0" ;;
-        esac
-    }
-
-    docker stats --no-stream --format {% raw %}'{{.Name}} {{.NetIO}}'{% endraw %} 2>/dev/null | while read -r cname net_io; do
-        [ -z "$cname" ] && continue
-        rx_raw=$(echo "$net_io" | cut -d'/' -f1 | xargs)
-        tx_raw=$(echo "$net_io" | cut -d'/' -f2 | xargs)
-        rx_bytes=$(to_bytes "$rx_raw")
-        tx_bytes=$(to_bytes "$tx_raw")
+    for cid in $(docker ps -q 2>/dev/null); do
+        cname=$(docker inspect --format {% raw %}'{{.Name}}'{% endraw %} "$cid" 2>/dev/null | sed 's|^/||')
+        netmode=$(docker inspect --format {% raw %}'{{.HostConfig.NetworkMode}}'{% endraw %} "$cid" 2>/dev/null)
+        [ "$netmode" = "host" ] && continue
+        cpid=$(docker inspect --format {% raw %}'{{.State.Pid}}'{% endraw %} "$cid" 2>/dev/null)
+        [ -z "$cpid" ] || [ "$cpid" = "0" ] && continue
+        read -r rx_bytes tx_bytes < <(
+            awk '/:/ && !/lo:/ {rx+=$2; tx+=$10} END {printf "%.0f %.0f\n", rx, tx}' "/proc/${cpid}/net/dev" 2>/dev/null
+        ) || continue
+        [ -z "$rx_bytes" ] && continue
         write_influx "container_net,hostname={{ inventory_hostname }},container=${cname} rx_bytes=${rx_bytes}i,tx_bytes=${tx_bytes}i"
     done
 fi
