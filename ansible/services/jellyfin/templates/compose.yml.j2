@@ -1,6 +1,6 @@
 services:
   jellyfin:
-    image: docker.io/jellyfin/jellyfin
+    image: docker.io/jellyfin/jellyfin:{{ jellyfin_version }}
     networks:
       - media
     container_name: jellyfin

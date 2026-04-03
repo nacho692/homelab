@@ -21,6 +21,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - {{ paths.config }}/caddy-docker-proxy/Caddyfile:/etc/caddy/Caddyfile.base
       - {{ paths.config }}/caddy-docker-proxy/certs/:/data/caddy/pki/authorities/local/
+      - {{ paths.config }}/caddy-docker-proxy/ca-index.html:/etc/caddy/ca/index.html:ro
 
 networks:
   media:

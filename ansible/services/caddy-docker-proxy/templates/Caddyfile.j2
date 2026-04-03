@@ -1,3 +1,17 @@
+ca.{{ internal_domain }} {
+    tls internal
+    handle /root.crt {
+        root * /data/caddy/pki/authorities/local
+        header Content-Type application/x-x509-ca-cert
+        header Content-Disposition "attachment; filename=\"caddy-root-ca.crt\""
+        file_server
+    }
+    handle {
+        root * /etc/caddy/ca
+        file_server
+    }
+}
+
 frigate.{{ internal_domain }} {
     reverse_proxy transcoder.host:8971
     tls internal

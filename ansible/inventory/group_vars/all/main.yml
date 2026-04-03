@@ -70,7 +70,10 @@ ha_notify_services:
   - notify.mobile_app_sm_a528b
 
 # Immich
-immich_version: "v2"
+immich_version: "v2.6.3"
+
+# Jellyfin
+jellyfin_version: "10.11.7"
 
 # Git repository configuration
 github_ssh_key: "{{ vault_github_ssh_key }}"

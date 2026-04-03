@@ -5,15 +5,16 @@ source "{{ monitoring_base_path }}/influx-write-helper.sh"
 
 {% for device in smartctl_devices %}
 {% set dev_short = device | regex_replace('/dev/', '') %}
-smart_json_{{ dev_short }}=$(smartctl -a -j {{ device }} 2>/dev/null || echo '{}')
-temp_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '.temperature.current // "U"')
-serial_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '.serial_number // "unknown"')
+smart_json_{{ dev_short }}=$(smartctl -a -j {{ device }} 2>/dev/null) || true
+[ -z "$smart_json_{{ dev_short }}" ] && smart_json_{{ dev_short }}='{}'
+temp_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '.temperature.current // "U"' 2>/dev/null || echo "U")
+serial_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '.serial_number // "unknown"' 2>/dev/null || echo "unknown")
 realloc_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '[.ata_smart_attributes.table[] | select(.id == 5) | .raw.value] | first // 0' 2>/dev/null || echo "0")
 pending_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '[.ata_smart_attributes.table[] | select(.id == 197) | .raw.value] | first // 0' 2>/dev/null || echo "0")
 offline_uncorrectable_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '[.ata_smart_attributes.table[] | select(.id == 198) | .raw.value] | first // 0' 2>/dev/null || echo "0")
 crc_errors_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '[.ata_smart_attributes.table[] | select(.id == 199) | .raw.value] | first // 0' 2>/dev/null || echo "0")
 power_hours_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r '[.ata_smart_attributes.table[] | select(.id == 9) | .raw.value] | first // 0' 2>/dev/null || echo "0")
-smart_passed_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r 'if .smart_status.passed then 1 elif .smart_status.passed == false then 0 else "U" end')
+smart_passed_{{ dev_short }}=$(echo "$smart_json_{{ dev_short }}" | jq -r 'if .smart_status.passed then 1 elif .smart_status.passed == false then 0 else "U" end' 2>/dev/null || echo "U")
 {% endfor %}
 
 {% for device in smartctl_devices %}
