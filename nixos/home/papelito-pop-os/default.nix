@@ -68,6 +68,7 @@ in
     pkgs.pa-dlna-chromecast
     pkgs-stable.gupnp-tools
     pkgs.nodejs_22
+    pkgs.sops
   ];
 
   home.sessionPath = [
@@ -107,6 +108,16 @@ in
     secrets = {
       subsonic_user = { };
       subsonic_password = { };
+      jellyfin_api_key = {
+        sopsFile = ../../secrets/jellyfin.yaml;
+      };
+    };
+    templates."jellyfin.conf" = {
+      content = ''
+        api_key = ${config.sops.placeholder.jellyfin_api_key}
+        url = https://rataflix.69.net.ar
+      '';
+      path = "${config.home.homeDirectory}/.config/mpv-daemon/jellyfin.conf";
     };
     templates."upmpdcli.conf" = {
       content = ''
@@ -162,6 +173,27 @@ in
     };
   };
 
+  systemd.user.services.mpv = {
+    Unit = {
+      Description = "MPV media player daemon";
+      After = [ "graphical-session.target" ];
+      Wants = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = builtins.concatStringsSep " " [
+        "/usr/bin/mpv"
+        "--idle"
+        "--no-terminal"
+        "--input-ipc-server=/tmp/mpvsocket"
+      ];
+      Restart = "on-failure";
+      RestartSec = 5;
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
+  };
+
   systemd.user.services.homeassistant = {
     Unit = {
       Description = "Home Assistant local instance";
@@ -188,6 +220,26 @@ in
       ExecStop = "/usr/bin/docker stop homeassistant-local";
       Restart = "on-failure";
       RestartSec = 10;
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
+  };
+
+  systemd.user.services.claude-telegram-bridge = {
+    Unit = {
+      Description = "Claude Telegram Bridge";
+      After = [ "network-online.target" ];
+      Wants = [ "network-online.target" ];
+    };
+    Service = {
+      WorkingDirectory = "${config.home.homeDirectory}/Projects/claude-telegram-bridge";
+      ExecStart = "${pkgs.nodejs_22}/bin/node dist/index.js";
+      Restart = "on-failure";
+      RestartSec = 5;
+      Environment = [
+        "PATH=${pkgs.openai-whisper}/bin:${pkgs.ffmpeg}/bin:${config.home.profileDirectory}/bin:/usr/local/bin:/usr/bin:/bin"
+      ];
     };
     Install = {
       WantedBy = [ "default.target" ];
