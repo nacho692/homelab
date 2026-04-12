@@ -18,9 +18,13 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    cos-cli = {
+      url = "github:estin/cos-cli";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { nixpkgs, nixpkgs-stable, home-manager, claude-code, codex-cli, nixgl, sops-nix, ... }:
+  outputs = { nixpkgs, nixpkgs-stable, home-manager, claude-code, codex-cli, nixgl, sops-nix, cos-cli, ... }:
     let
       localOverlay = final: prev: {
         pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
@@ -97,7 +101,7 @@
           config.allowUnfree = true;
           overlays = [ claude-code.overlays.default codex-cli.overlays.default localOverlay ];
         };
-        extraSpecialArgs = { inherit nixgl nixpkgs-stable; };
+        extraSpecialArgs = { inherit nixgl nixpkgs-stable cos-cli; };
         modules = [
           ./home/papelito-pop-os
           sops-nix.homeManagerModules.sops

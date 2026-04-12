@@ -1,4 +1,4 @@
-{ pkgs, config, nixgl, nixpkgs-stable, ... }:
+{ pkgs, config, nixgl, nixpkgs-stable, cos-cli, ... }:
 
 let
   nixglPackages = import "${nixgl}/default.nix" {
@@ -69,6 +69,7 @@ in
     pkgs-stable.gupnp-tools
     pkgs.nodejs_22
     pkgs.sops
+    cos-cli.packages.x86_64-linux.default
   ];
 
   home.sessionPath = [
