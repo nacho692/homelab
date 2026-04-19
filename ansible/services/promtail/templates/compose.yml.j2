@@ -11,6 +11,11 @@ services:
       - ./config:/etc/promtail
       - {{ paths.config }}:{{ paths.config }}:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    # Force loki.internal to resolve to the NAS host IP. Without this, Docker's
+    # embedded DNS on the `internal` network returns caddy-docker-proxy's
+    # container IP, which doesn't listen on 443 internally.
+    extra_hosts:
+      - "loki.{{ internal_domain }}:{{ nas_ip }}"
     networks:
       - internal
 
