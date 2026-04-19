@@ -8,6 +8,8 @@ services:
       - {{ service_ports.jellyfin }}:8096
     group_add:
       - "{{ render_group }}"
+    cap_add:
+      - SYS_NICE
     volumes:
       - jellyfin-cache:/cache
       - type: bind
