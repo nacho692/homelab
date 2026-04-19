@@ -5,9 +5,36 @@ positions:
   filename: /etc/promtail/positions.yaml
 
 clients:
-  - url: http://loki:{{ service_ports.loki }}/loki/api/v1/push
+  - url: {{ promtail_loki_url }}
+    # Caddy serves loki.internal with an internal CA not in the system trust store.
+    # For homelab-internal traffic, skip verification.
+    tls_config:
+      insecure_skip_verify: true
+    external_labels:
+      host: {{ inventory_hostname }}
 
 scrape_configs:
+  # Auto-discover every Docker container on this host and ship stdout/stderr.
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: container_name
+      - source_labels: ['__meta_docker_container_log_stream']
+        target_label: stream
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_project']
+        target_label: compose_project
+      - source_labels: ['__meta_docker_container_image']
+        target_label: image
+      # Don't scrape promtail's own logs — avoids a feedback loop.
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/promtail'
+        action: drop
+
+  # Per-service file scrapes, declared by each service's monitoring/loki.yml.
 {% set loki_files = lookup('pipe', 'find ' + (playbook_dir + '/../services') | realpath + ' -path "*/monitoring/loki.yml" -type f 2>/dev/null | sort').splitlines() %}
 {% for loki_file in loki_files %}
 {% if loki_file %}

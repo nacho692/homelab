@@ -8,6 +8,7 @@ docker_group: users
 enabled_services:
   - frigate
   - audiomuse-ai
+  - promtail
 
 docker_networks:
   - internal

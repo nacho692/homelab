@@ -75,6 +75,9 @@ immich_version: "v2.6.3"
 # Jellyfin
 jellyfin_version: "10.11.7"
 
+# Promtail: each host pushes to Loki via Caddy's loki.internal route
+promtail_loki_url: "https://loki.{{ internal_domain }}/loki/api/v1/push"
+
 # Git repository configuration
 github_ssh_key: "{{ vault_github_ssh_key }}"
 github_ssh_pubkey: "{{ vault_github_ssh_pubkey }}"
