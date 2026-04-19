@@ -11,14 +11,7 @@ services:
       - ./config:/etc/promtail
       - {{ paths.config }}:{{ paths.config }}:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    # Force loki.internal to resolve to the NAS host IP. Without this, Docker's
-    # embedded DNS on the `internal` network returns caddy-docker-proxy's
-    # container IP, which doesn't listen on 443 internally.
-    extra_hosts:
-      - "loki.{{ internal_domain }}:{{ nas_ip }}"
-    networks:
-      - internal
-
-networks:
-  internal:
-    external: true
+    # Intentionally NOT on the `internal` network. caddy-docker-proxy registers
+    # loki.internal as a container alias there, which Docker's embedded DNS
+    # then returns instead of the real host IP from pihole. Staying on the
+    # default bridge lets DNS resolve via the host resolver normally.
