@@ -92,6 +92,7 @@
         };
         modules = [
           ./home/skynet
+          sops-nix.homeManagerModules.sops
         ];
       };
 

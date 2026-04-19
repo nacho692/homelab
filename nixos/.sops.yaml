@@ -1,7 +1,7 @@
 keys:
-  - &papelito_pop_os age1m8wj7vcqyy2ycaxsxkzppmq8ra4jemezekvchuzaj6fk5szauq4qt9czeh
+  - &age_key age1m8wj7vcqyy2ycaxsxkzppmq8ra4jemezekvchuzaj6fk5szauq4qt9czeh
 creation_rules:
   - path_regex: secrets/.*\.yaml$
     key_groups:
       - age:
-          - *papelito_pop_os
+          - *age_key
