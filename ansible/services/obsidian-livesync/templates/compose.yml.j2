@@ -12,11 +12,11 @@ services:
       - "{{ service_ports.obsidian_livesync }}:5984"
     restart: unless-stopped
     networks:
-      - internal
+      - local
     labels:
       caddy: obsidian.{{ domain }}
       caddy.reverse_proxy: "{% raw %}{{upstreams 5984}}{% endraw %}"
 
 networks:
-  internal:
+  local:
     external: true

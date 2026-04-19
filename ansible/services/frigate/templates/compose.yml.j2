@@ -4,7 +4,7 @@ services:
     container_name: frigate
     restart: unless-stopped
     networks:
-      - internal
+      - local
     ports:
       - "{{ service_ports.frigate }}:8971"
       - "8554:8554"
@@ -28,5 +28,5 @@ services:
     shm_size: "256mb"
 
 networks:
-  internal:
+  local:
     external: true

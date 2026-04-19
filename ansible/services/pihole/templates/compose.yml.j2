@@ -3,7 +3,7 @@ services:
     container_name: pihole
     image: pihole/pihole:latest
     networks:
-      - internal
+      - local
     ports:
       - "{{ service_ports.pihole_dns }}:53/tcp"
       - "{{ service_ports.pihole_dns }}:53/udp"
@@ -30,7 +30,7 @@ services:
       caddy.tls: internal
 
 networks:
-  internal:
+  local:
     external: true
 
 volumes:

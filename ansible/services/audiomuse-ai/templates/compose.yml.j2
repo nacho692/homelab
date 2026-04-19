@@ -6,7 +6,7 @@ services:
       - redis-data:/data
     restart: unless-stopped
     networks:
-      - internal
+      - local
 
   audiomuse-postgres:
     image: postgres:15-alpine
@@ -19,7 +19,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
-      - internal
+      - local
 
   audiomuse-flask:
     image: ghcr.io/neptunehub/audiomuse-ai:latest
@@ -40,7 +40,7 @@ services:
       - audiomuse-postgres
     restart: unless-stopped
     networks:
-      - internal
+      - local
 
   audiomuse-worker:
     image: ghcr.io/neptunehub/audiomuse-ai:latest
@@ -60,7 +60,7 @@ services:
     restart: unless-stopped
     mem_limit: 4g
     networks:
-      - internal
+      - local
 
 volumes:
   redis-data:
@@ -69,5 +69,5 @@ volumes:
   temp-audio-worker:
 
 networks:
-  internal:
+  local:
     external: true

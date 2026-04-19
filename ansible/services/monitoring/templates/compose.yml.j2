@@ -17,7 +17,7 @@ services:
       - {{ paths.config }}/monitoring/influxdb/data:/var/lib/influxdb2
       - {{ paths.config }}/monitoring/influxdb/config:/etc/influxdb2
     networks:
-      - internal
+      - local
 
   loki:
     image: grafana/loki:latest
@@ -31,7 +31,7 @@ services:
       - {{ paths.config }}/monitoring/loki/data:/loki
       - {{ paths.config }}/monitoring/loki/config:/etc/loki:ro
     networks:
-      - internal
+      - local
 
   grafana:
     image: grafana/grafana:latest
@@ -49,8 +49,8 @@ services:
       - influxdb
       - loki
     networks:
-      - internal
+      - local
 
 networks:
-  internal:
+  local:
     external: true
