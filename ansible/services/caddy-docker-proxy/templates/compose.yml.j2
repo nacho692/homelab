@@ -5,11 +5,10 @@ services:
     restart: unless-stopped
     networks:
       - media
-      - internal
       - local
     environment:
       - TZ={{ timezone }}
-      - CADDY_INGRESS_NETWORKS=media,internal,local
+      - CADDY_INGRESS_NETWORKS=media,local
       - CADDY_DOCKER_CADDYFILE_PATH=/etc/caddy/Caddyfile.base
     ports:
       - "80:80"
@@ -26,8 +25,6 @@ services:
 
 networks:
   media:
-    external: true
-  internal:
     external: true
   local:
     external: true
