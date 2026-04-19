@@ -93,38 +93,8 @@
   services.tailscale.enable = true;
   services.tailscale.useRoutingFeatures = "client";
 
-  # Docker: live-restore on, Loki as default log driver
-  virtualisation.docker = {
-    enable = true;
-    liveRestore = true;
-    daemon.settings = {
-      log-driver = "loki";
-      log-opts = {
-        loki-url = "https://loki.internal/loki/api/v1/push";
-        loki-batch-size = "400";
-        loki-retries = "2";
-        loki-timeout = "1s";
-        mode = "non-blocking";
-        max-buffer-size = "4m";
-        loki-external-labels = ''host=transcoder,container_name={{.Name}},compose_project={{.Label "com.docker.compose.project"}},image={{.ImageName}}'';
-      };
-    };
-  };
-
-  # Install the Loki Docker plugin during activation, using the previous
-  # generation's running dockerd, so the plugin exists by the time the new
-  # dockerd restarts with log-driver=loki. Idempotent.
-  system.activationScripts.dockerLokiPlugin = ''
-    if ${pkgs.systemd}/bin/systemctl is-active docker.service >/dev/null 2>&1; then
-      if ! ${pkgs.docker}/bin/docker plugin inspect loki >/dev/null 2>&1; then
-        echo "Installing Loki Docker log driver plugin..."
-        ${pkgs.docker}/bin/docker plugin install \
-          grafana/loki-docker-driver:3.0.0-amd64 \
-          --alias loki \
-          --grant-all-permissions
-      fi
-    fi
-  '';
+  # Enable docker
+  virtualisation.docker.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
