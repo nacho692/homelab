@@ -6,9 +6,10 @@ services:
     networks:
       - media
       - internal
+      - local
     environment:
       - TZ={{ timezone }}
-      - CADDY_INGRESS_NETWORKS=media,internal
+      - CADDY_INGRESS_NETWORKS=media,internal,local
       - CADDY_DOCKER_CADDYFILE_PATH=/etc/caddy/Caddyfile.base
     ports:
       - "80:80"
@@ -27,6 +28,8 @@ networks:
   media:
     external: true
   internal:
+    external: true
+  local:
     external: true
 
 volumes:

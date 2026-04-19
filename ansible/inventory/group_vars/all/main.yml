@@ -15,7 +15,8 @@ paths:
 
 docker_networks:
   - media
-  - internal
+  - internal   # deprecated, being migrated to 'local'
+  - local
 
 docker_user: skynet
 docker_group: "{{ docker_user }}"

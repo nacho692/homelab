@@ -11,7 +11,8 @@ enabled_services:
   - promtail
 
 docker_networks:
-  - internal
+  - internal   # deprecated, being migrated to 'local'
+  - local
 
 render_group: "303"
 gpu_device: "/dev/dri/renderD128"
