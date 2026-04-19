@@ -43,7 +43,7 @@ service_ports:
   sonarr: 8989
   prowlarr: 9696
   qbittorrent: 8080
-  jellyseerr: 5055
+  seerr: 5055
   pihole_dns: 53
   pihole_web: 6969
 

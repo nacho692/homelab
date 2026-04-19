@@ -30,7 +30,7 @@ enabled_services:
   - lidarr
   - bazarr
   - prowlarr
-  - jellyseerr
+  - seerr
   # Downloading
   - qbittorrent
   - slskd
