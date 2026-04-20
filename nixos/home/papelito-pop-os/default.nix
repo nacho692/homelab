@@ -68,8 +68,9 @@ in
     pkgs.pa-dlna-chromecast
     pkgs-stable.gupnp-tools
     pkgs.nodejs_22
+    pkgs.yt-dlp
     pkgs.sops
-    cos-cli.packages.x86_64-linux.default
+    cos-cli.defaultPackage.x86_64-linux
   ];
 
   home.sessionPath = [
