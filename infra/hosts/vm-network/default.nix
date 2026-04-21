@@ -116,8 +116,8 @@
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN0tqObUd8+w40MBVIQRhTAVRQIV0IOSmSWjrNVtczru papelito@pop-os"
   ];
 
-  environment.etc."homelab-host".text = "vm-network (adguardhome)\n";
-  environment.systemPackages = with pkgs; [ vim git curl htop dig ];
+  environment.etc."homelab-host".text = "vm-network — comin delivered this line\n";
+  environment.systemPackages = with pkgs; [ vim git curl htop dig tree fastfetch ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
