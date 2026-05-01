@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports =
@@ -81,6 +81,10 @@
   systemd.services.docker = {
     after = [ "mnt-raid.mount" "media-data.mount" ];
     requires = [ "mnt-raid.mount" "media-data.mount" ];
+    serviceConfig = {
+      Restart = lib.mkForce "on-failure";
+      RestartSec = lib.mkForce "60s";
+    };
   };
 
   users.users.skynet = {
