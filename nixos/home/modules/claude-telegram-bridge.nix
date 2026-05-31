@@ -15,6 +15,15 @@ let
     npmDepsHash = "sha256-LrUoPXIZoZ5bBvinbThgeBkOXhbqIehFHaOvr8ihaek=";
     # The repo ships no test script; default `npm test` would fail.
     dontNpmCheck = true;
+    # The bridge's .gitignore lists `dist/`, so the default npm-install-hook
+    # (which packs via `npm pack`) drops the TypeScript build output. Copy
+    # the build artifacts directly instead.
+    installPhase = ''
+      runHook preInstall
+      mkdir -p $out/lib/node_modules/claude-telegram-bridge
+      cp -r dist node_modules package.json package-lock.json $out/lib/node_modules/claude-telegram-bridge/
+      runHook postInstall
+    '';
   };
 
   bridgeRoot = "${bridgePkg}/lib/node_modules/claude-telegram-bridge";
