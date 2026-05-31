@@ -98,7 +98,7 @@ in
         Type = "simple";
         WorkingDirectory = configDir;
         Environment = [
-          "PATH=${pkgs.openai-whisper}/bin:${pkgs.ffmpeg}/bin:${config.home.profileDirectory}/bin:/usr/bin:/bin"
+          "PATH=${pkgs.nodejs_22}/bin:${pkgs.openai-whisper}/bin:${pkgs.ffmpeg}/bin:${config.home.profileDirectory}/bin:/usr/bin:/bin"
         ];
         ExecStartPre = "${buildScript}";
         ExecStart = "${pkgs.nodejs_22}/bin/node ${buildDir}/dist/index.js";
