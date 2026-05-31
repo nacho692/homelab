@@ -51,6 +51,7 @@ in
 {
   imports = [
     ../shared
+    ./claude-telegram-bridge.nix
   ];
 
   targets.genericLinux.nixGL = {
@@ -222,26 +223,6 @@ in
       ExecStop = "/usr/bin/docker stop homeassistant-local";
       Restart = "on-failure";
       RestartSec = 10;
-    };
-    Install = {
-      WantedBy = [ "default.target" ];
-    };
-  };
-
-  systemd.user.services.claude-telegram-bridge = {
-    Unit = {
-      Description = "Claude Telegram Bridge";
-      After = [ "network-online.target" ];
-      Wants = [ "network-online.target" ];
-    };
-    Service = {
-      WorkingDirectory = "${config.home.homeDirectory}/Projects/claude-telegram-bridge";
-      ExecStart = "${pkgs.nodejs_22}/bin/node dist/index.js";
-      Restart = "on-failure";
-      RestartSec = 5;
-      Environment = [
-        "PATH=${pkgs.openai-whisper}/bin:${pkgs.ffmpeg}/bin:${config.home.profileDirectory}/bin:/usr/local/bin:/usr/bin:/bin"
-      ];
     };
     Install = {
       WantedBy = [ "default.target" ];
