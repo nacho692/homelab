@@ -99,7 +99,6 @@ in
         WorkingDirectory = configDir;
         Environment = [
           "PATH=${pkgs.openai-whisper}/bin:${pkgs.ffmpeg}/bin:${config.home.profileDirectory}/bin:/usr/bin:/bin"
-          "NODE_ENV=production"
         ];
         ExecStartPre = "${buildScript}";
         ExecStart = "${pkgs.nodejs_22}/bin/node ${buildDir}/dist/index.js";
