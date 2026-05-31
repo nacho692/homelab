@@ -13,6 +13,7 @@
         allowedUserIds = [ 194268268 ];
         rateLimitPerMinute = 10;
       };
+      security = { };
       claude = {
         defaultModel = "sonnet";
         defaultEffort = "high";
