@@ -10,7 +10,7 @@
     bridgePinSecret = "rataflix_bridge_pin";
     settings = {
       telegram = {
-        allowedUserIds = [ 19468268 ];
+        allowedUserIds = [ 194268268 ];
         rateLimitPerMinute = 10;
       };
       claude = {

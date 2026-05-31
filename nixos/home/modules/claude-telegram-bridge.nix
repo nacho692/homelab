@@ -4,10 +4,10 @@ let
   cfg = config.services.claude-telegram-bridge;
 
   bridgeSrc = pkgs.fetchFromGitHub {
-    owner = "nacho692";
+    owner = "FrancoMarcolongo";
     repo = "claude-telegram-bridge";
-    rev = "a455a64c9baa7b49bd5590523bf354bd290946b4";
-    hash = "sha256-OJ2yO3e94RSRKt03sw4NM0IkLDPYe+3a33qzqr6YnFE=";
+    rev = "dbed8a7da3572a5102aca4060dd1fefff384c59f";
+    hash = "sha256-GIRyZ42hY3tiihsAIJvcNCMQJWUp8s2/CTiJxSh8n2M=";
   };
 
   stateRoot = "${config.xdg.dataHome}/claude-telegram-bridge-${cfg.name}";
