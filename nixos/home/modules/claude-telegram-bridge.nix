@@ -3,30 +3,22 @@
 let
   cfg = config.services.claude-telegram-bridge;
 
-  bridgeSrc = pkgs.fetchFromGitHub {
-    owner = "FrancoMarcolongo";
-    repo = "claude-telegram-bridge";
-    rev = "dbed8a7da3572a5102aca4060dd1fefff384c59f";
-    hash = "sha256-GIRyZ42hY3tiihsAIJvcNCMQJWUp8s2/CTiJxSh8n2M=";
+  bridgePkg = pkgs.buildNpmPackage {
+    pname = "claude-telegram-bridge";
+    version = "0-unstable-dbed8a7";
+    src = pkgs.fetchFromGitHub {
+      owner = "FrancoMarcolongo";
+      repo = "claude-telegram-bridge";
+      rev = "dbed8a7da3572a5102aca4060dd1fefff384c59f";
+      hash = "sha256-GIRyZ42hY3tiihsAIJvcNCMQJWUp8s2/CTiJxSh8n2M=";
+    };
+    npmDepsHash = "sha256-LrUoPXIZoZ5bBvinbThgeBkOXhbqIehFHaOvr8ihaek=";
+    # The repo ships no test script; default `npm test` would fail.
+    dontNpmCheck = true;
   };
 
-  stateRoot = "${config.xdg.dataHome}/claude-telegram-bridge-${cfg.name}";
-  buildDir = "${stateRoot}/build";
+  bridgeRoot = "${bridgePkg}/lib/node_modules/claude-telegram-bridge";
   configDir = "${config.xdg.configHome}/claude-telegram-bridge-${cfg.name}";
-
-  buildScript = pkgs.writeShellScript "claude-telegram-bridge-${cfg.name}-build" ''
-    set -euo pipefail
-    mkdir -p "${buildDir}"
-    stamp="${stateRoot}/.src-stamp"
-    if [ "$(cat "$stamp" 2>/dev/null || true)" != "${bridgeSrc}" ]; then
-      ${pkgs.rsync}/bin/rsync -a --delete --exclude=node_modules "${bridgeSrc}/" "${buildDir}/"
-      chmod -R u+w "${buildDir}"
-      cd "${buildDir}"
-      ${pkgs.nodejs_22}/bin/npm ci --prefer-offline --no-audit --fund=false
-      ${pkgs.nodejs_22}/bin/npm run build
-      echo "${bridgeSrc}" > "$stamp"
-    fi
-  '';
 
   yamlFormat = pkgs.formats.yaml { };
   configFile = yamlFormat.generate "claude-telegram-bridge-${cfg.name}-config.yaml" cfg.settings;
@@ -39,7 +31,7 @@ in
       type = lib.types.str;
       description = ''
         Instance name. Used as the systemd unit suffix
-        (claude-telegram-bridge-<name>) and config/state dir suffix.
+        (claude-telegram-bridge-<name>) and config dir suffix.
       '';
     };
 
@@ -98,10 +90,9 @@ in
         Type = "simple";
         WorkingDirectory = configDir;
         Environment = [
-          "PATH=${pkgs.nodejs_22}/bin:${pkgs.openai-whisper}/bin:${pkgs.ffmpeg}/bin:${config.home.profileDirectory}/bin:/usr/bin:/bin"
+          "PATH=${pkgs.openai-whisper}/bin:${pkgs.ffmpeg}/bin:${config.home.profileDirectory}/bin:/usr/bin:/bin"
         ];
-        ExecStartPre = "${buildScript}";
-        ExecStart = "${pkgs.nodejs_22}/bin/node ${buildDir}/dist/index.js";
+        ExecStart = "${pkgs.nodejs_22}/bin/node ${bridgeRoot}/dist/index.js";
         Restart = "on-failure";
         RestartSec = 5;
         TimeoutStartSec = "10min";
