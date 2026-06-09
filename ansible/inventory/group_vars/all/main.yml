@@ -73,7 +73,7 @@ ha_notify_services:
 immich_version: "v2.6.3"
 
 # Jellyfin
-jellyfin_version: "10.11.7"
+jellyfin_version: "10.11.11"
 
 # Promtail: each host pushes to Loki via Caddy's loki.internal route
 promtail_loki_url: "https://loki.{{ internal_domain }}/loki/api/v1/push"
