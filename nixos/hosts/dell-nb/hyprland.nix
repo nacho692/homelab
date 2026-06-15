@@ -5,14 +5,13 @@
 
   services.displayManager.gdm = {
     enable = true;
-    wayland = true;
   };
 
   programs = {
-    hyprland = {
-      enable = true;
-      xwayland.enable = true;
-    };
+    # hyprland = {
+    #   enable = true;
+    #   xwayland.enable = true;
+    # };
     niri.enable = true;
   };
 
