@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, config, ... }:
 
 let
   waybar-niri-windows = pkgs.buildGoModule rec {
@@ -116,9 +116,9 @@ in
     }
 
     spawn-at-startup "swaync"
-    spawn-at-startup "waybar" "-c" "$HOME/.config/waybar/niri/config" "-s" "$HOME/.config/waybar/niri/style.css"
-    spawn-at-startup "swww-daemon"
-    spawn-at-startup "sh" "-c" "sleep 1 && swww img \"$(find $HOME/Pictures/wallpapers -type f | shuf -n 1)\" --transition-type fade --transition-duration 2 && while true; do sleep 1800; swww img \"$(find $HOME/Pictures/wallpapers -type f | shuf -n 1)\" --transition-type fade --transition-duration 2; done"
+    spawn-at-startup "sh" "-c" "while true; do waybar -c ${config.home.homeDirectory}/.config/waybar/niri/config -s ${config.home.homeDirectory}/.config/waybar/niri/style.css; sleep 2; done"
+    spawn-at-startup "awww-daemon"
+    spawn-at-startup "sh" "-c" "sleep 1 && awww img \"$(find $HOME/Pictures/wallpapers -type f | shuf -n 1)\" --transition-type fade --transition-duration 2 && while true; do sleep 1800; awww img \"$(find $HOME/Pictures/wallpapers -type f | shuf -n 1)\" --transition-type fade --transition-duration 2; done"
     spawn-at-startup "wl-clip-persist"
     spawn-at-startup "nm-applet" "--no-agent"
     spawn-at-startup "blueman-applet"

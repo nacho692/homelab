@@ -92,8 +92,8 @@
 
         "swaync"
         "waybar"
-        "swww-daemon"
-        "sh -c 'sleep 1 && swww img \"$(find $HOME/Pictures/wallpapers -type f | shuf -n 1)\" --transition-type fade --transition-duration 2 && while true; do sleep 1800; swww img \"$(find $HOME/Pictures/wallpapers -type f | shuf -n 1)\" --transition-type fade --transition-duration 2; done'"
+        "awww-daemon"
+        "sh -c 'sleep 1 && awww img \"$(find $HOME/Pictures/wallpapers -type f | shuf -n 1)\" --transition-type fade --transition-duration 2 && while true; do sleep 1800; awww img \"$(find $HOME/Pictures/wallpapers -type f | shuf -n 1)\" --transition-type fade --transition-duration 2; done'"
 
         "wl-clip-persist"
         "power-profiles-daemon"

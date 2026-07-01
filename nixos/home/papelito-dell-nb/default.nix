@@ -10,8 +10,13 @@
   home.packages = with pkgs; [
     libnotify
     libreoffice-qt
-    swww
+    awww
     fuzzel
     ansible
   ];
+
+  programs.zed-editor = {
+    enable = true;
+    extensions = [ "erlang" "gleam" ];
+  };
 }
