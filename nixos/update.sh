@@ -9,8 +9,12 @@ TARGET="${USER}@${HOST}"
 echo ">>> Updating flake inputs"
 nix flake update
 
-echo ">>> Rebuilding NixOS for ${HOST} (sudo)"
-sudo nixos-rebuild switch --flake ".#${HOST}"
+if [ -e /etc/NIXOS ]; then
+  echo ">>> Rebuilding NixOS for ${HOST} (sudo)"
+  sudo nixos-rebuild switch --flake ".#${HOST}"
+else
+  echo ">>> Skipping nixos-rebuild (not a NixOS host)"
+fi
 
 echo ">>> Switching Home Manager for ${TARGET}"
 home-manager switch --flake ".#${TARGET}"
