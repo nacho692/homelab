@@ -1,0 +1,15 @@
+services:
+  castsponsorskip:
+    image: ghcr.io/gabe565/castsponsorskip:latest
+    container_name: castsponsorskip
+    # Host network is REQUIRED for mDNS discovery of Google Cast devices on the LAN.
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - TZ={{ timezone }}
+      # SponsorBlock categories to skip in cast YouTube videos.
+      - CSS_CATEGORIES=sponsor,selfpromo,interaction
+      # Skip skippable YouTube ads automatically.
+      - CSS_SKIP_SPONSORS=true
+      # Mute audio during (non-skippable) ads.
+      - CSS_MUTE_ADS=true

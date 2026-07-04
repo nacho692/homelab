@@ -22,9 +22,13 @@
       url = "github:estin/cos-cli";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { nixpkgs, nixpkgs-stable, home-manager, claude-code, codex-cli, nixgl, sops-nix, cos-cli, ... }:
+  outputs = { nixpkgs, nixpkgs-stable, home-manager, claude-code, codex-cli, nixgl, sops-nix, cos-cli, hermes-agent, ... }:
     let
       localOverlay = final: prev: {
         pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
@@ -77,7 +81,7 @@
         pkgs = import nixpkgs {
           system = "x86_64-linux";
           config.allowUnfree = true;
-          overlays = [ claude-code.overlays.default codex-cli.overlays.default ];
+          overlays = [ claude-code.overlays.default codex-cli.overlays.default hermes-agent.overlays.default ];
         };
         modules = [
           ./home/shared
@@ -88,7 +92,7 @@
         pkgs = import nixpkgs {
           system = "x86_64-linux";
           config.allowUnfree = true;
-          overlays = [ claude-code.overlays.default codex-cli.overlays.default ];
+          overlays = [ claude-code.overlays.default codex-cli.overlays.default hermes-agent.overlays.default ];
         };
         modules = [
           ./home/skynet
@@ -100,7 +104,7 @@
         pkgs = import nixpkgs {
           system = "x86_64-linux";
           config.allowUnfree = true;
-          overlays = [ claude-code.overlays.default codex-cli.overlays.default localOverlay ];
+          overlays = [ claude-code.overlays.default codex-cli.overlays.default hermes-agent.overlays.default localOverlay ];
         };
         extraSpecialArgs = { inherit nixgl nixpkgs-stable cos-cli; };
         modules = [
@@ -113,7 +117,7 @@
         pkgs = import nixpkgs {
           system = "x86_64-linux";
           config.allowUnfree = true;
-          overlays = [ claude-code.overlays.default codex-cli.overlays.default ];
+          overlays = [ claude-code.overlays.default codex-cli.overlays.default hermes-agent.overlays.default ];
         };
         modules = [
           ./home/papelito-dell-nb
@@ -124,7 +128,7 @@
         pkgs = import nixpkgs {
           system = "x86_64-linux";
           config.allowUnfree = true;
-          overlays = [ claude-code.overlays.default codex-cli.overlays.default ];
+          overlays = [ claude-code.overlays.default codex-cli.overlays.default hermes-agent.overlays.default ];
         };
         modules = [
           ./home/skynet-transcoder

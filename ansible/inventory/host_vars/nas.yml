@@ -52,6 +52,9 @@ enabled_services:
   # Home Automation
   - homeassistant
 
+  # Media utilities
+  - castsponsorskip
+
   # Monitoring
   - monitoring
   - promtail

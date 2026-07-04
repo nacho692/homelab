@@ -16,6 +16,7 @@
     magic-wormhole
     offpunk
     claude-code
+    hermes-agent
     eternal-terminal
     codex
     ed
